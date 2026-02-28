@@ -50,7 +50,7 @@ def setup_game_world(world: ECSWorld) -> None:
 
     world.add_component(player, PlayerController(
         move_speed=6.0,
-        mouse_sens=0.0025,
+        mouse_sens=0.15,
         invert_y=False 
     ))
 

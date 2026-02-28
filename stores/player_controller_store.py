@@ -18,7 +18,7 @@ class PlayerControllerStore(SoAStore):
             cap = 1
 
         self.move_speed: npt.NDArray[np.float32] = np.full(cap, 6.0, dtype=np.float32)
-        self.mouse_sens: npt.NDArray[np.float32] = np.full(cap, 0.0025, dtype=np.float32)
+        self.mouse_sens: npt.NDArray[np.float32] = np.full(cap, 0.15, dtype=np.float32)
         self.invert_y: npt.NDArray[np.bool_] = np.zeros(cap, dtype=np.bool_)
 
     def _ensure_dense_capacity(self, new_dense_capacity: int) -> None:

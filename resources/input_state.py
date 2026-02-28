@@ -62,6 +62,8 @@ def bind_input(window: 'AstralWindow', world: 'ECSWorld') -> None:
     def I() -> InputState:
         return world.resources.get(InputState)
     
+    window.set_exclusive_mouse(True)
+    
     @window.event
     def on_key_press(symbol: int, modifiers: int) -> None:
         inp = I()
@@ -85,7 +87,7 @@ def bind_input(window: 'AstralWindow', world: 'ECSWorld') -> None:
         if not inp.enabled:
             return
         mdx, mdy = inp.mouse_delta
-        inp.mouse_delta = (mdx + dx, mdy + dy)
+        inp.mouse_delta = (mdx - dx, mdy + dy)
         
     @window.event
     def on_mouse_drag(x: int, y: int, dx: int, dy: int, buttons: int, modifiers: int) -> None:
@@ -101,7 +103,7 @@ def bind_input(window: 'AstralWindow', world: 'ECSWorld') -> None:
         inp.buttons_down.add(button)
         
     @window.event
-    def on_mouse_release(x: int, y: int, z: int, button: int, modifiers: int) -> None:
+    def on_mouse_release(x: int, y: int, button: int, modifiers: int) -> None:
         inp = I()
         if button in inp.buttons_down:
             inp.buttons_down.remove(button)

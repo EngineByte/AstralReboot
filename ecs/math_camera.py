@@ -7,6 +7,7 @@ Mat4 = npt.NDArray[np.float32]
 
 
 def _rot_x(a: float) -> Mat4:
+    a = np.radians(a)
     c = np.float32(np.cos(a))
     s = np.float32(np.sin(a))
     return np.array(
@@ -32,6 +33,7 @@ def _rot_y(a: float) -> Mat4:
 
 
 def _rot_z(a: float) -> Mat4:
+    a = np.radians(a)
     c = np.float32(np.cos(a))
     s = np.float32(np.sin(a))
     return np.array(
