@@ -21,6 +21,7 @@ class ResourceRegistry:
     def try_get(self, typ: Type[T]) -> Optional[T]:
         v = self._resources.get(typ)
         return v
+    
     def remove(self, typ: Type[Any]) -> None:
         self._resources.pop(typ, None)
 

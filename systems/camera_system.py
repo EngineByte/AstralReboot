@@ -35,3 +35,4 @@ def system_update_camera_matrices(world: "ECSWorld", dt: float) -> None:
         mats.proj[i_mats] = proj
 
         world.defer_remove_tag(eid, DirtyMatrices)
+        

@@ -53,7 +53,7 @@ class Query:
 
         candidates.sort(key=lambda x: x[0])
         drive_size, drive_store = candidates[0]
-        drive_dense_eids = drive_store.dense_eids()
+        drive_dense_eids = drive_store.dense_eids().copy()
 
         self._drive_store = drive_store
         self._drive_eids = drive_dense_eids

@@ -11,7 +11,7 @@ from ecs.entity_allocator import EntityId
 
 
 class ParentFollowStore(SoAStore):
-    def __init__(self, entity_capacity: int, initial_dense_capacity: int = 1024) -> None:
+    def __init__(self, entity_capacity: int, initial_dense_capacity: int = 256) -> None:
         super().__init__(entity_capacity=entity_capacity, initial_dense_capacity=initial_dense_capacity)
 
         cap = int(initial_dense_capacity)
@@ -41,7 +41,6 @@ class ParentFollowStore(SoAStore):
         o = component.offset
         if o.shape != (3,):
             raise ValueError("ParentFollow.offset must be shape (3,) float32 array")
-
         self.parent[dense_i] = component.parent
         self.ox[dense_i] = np.float32(o[0])
         self.oy[dense_i] = np.float32(o[1])

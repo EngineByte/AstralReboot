@@ -19,6 +19,7 @@ from components.mesh import Mesh
 from components.chunk import Chunk
 from components.tags import DirtyMatrices, DirtyRemesh
 from components.parent_follow import ParentFollow
+from components.player_controller import PlayerController
 
 from stores.camera_matrices_store import CameraMatricesStore
 from stores.camera_store import CameraStore
@@ -27,6 +28,7 @@ from stores.velocity_store import VelocityStore
 from stores.mesh_store import MeshStore
 from stores.chunk_store import ChunkStore
 from stores.parent_follow_store import ParentFollowStore
+from stores.player_controller_store import PlayerControllerStore
 
 
 def create_ecs_world(entity_capacity: int = 100_000) -> ECSWorld:
@@ -53,6 +55,7 @@ def create_ecs_world(entity_capacity: int = 100_000) -> ECSWorld:
     stores.register(Mesh, MeshStore(entity_capacity))
     stores.register(Chunk, ChunkStore(entity_capacity))
     stores.register(ParentFollow, ParentFollowStore(entity_capacity))
+    stores.register(PlayerController, PlayerControllerStore(entity_capacity))
 
     stores.register(DirtyMatrices, TagStore(entity_capacity))
     stores.register(DirtyRemesh, TagStore(entity_capacity))

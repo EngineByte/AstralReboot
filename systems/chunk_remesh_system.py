@@ -6,9 +6,9 @@ from components.chunk import Chunk
 from components.mesh import Mesh
 from components.tags import DirtyRemesh
 
-from voxels.voxel_pool import VoxelPool
+from resources.voxels.voxel_pool import VoxelPool
 from renderer.mesh_pool import MeshPool
-from voxels.meshing import build_surface_mesh_from_voxels
+from resources.voxels.meshing import build_surface_mesh_from_voxels
 
 
 def system_chunk_remesh(world: "ECSWorld", dt: float) -> None:

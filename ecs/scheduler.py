@@ -84,8 +84,6 @@ class SystemScheduler:
                 continue
             spec.func(world, dt)
         
-        #print(f'running {phase} phase')
-
     def _get_sorted_phase(self, phase: str) -> List[SystemSpec]:
         if not self._dirty.get(phase, True):
             return self._sorted_cache[phase]

@@ -19,3 +19,4 @@ def system_movement(world: "ECSWorld", dt: float) -> None:
         tr.px[i_tr] += vel.vx[i_vel] * dt32
         tr.py[i_tr] += vel.vy[i_vel] * dt32
         tr.pz[i_tr] += vel.vz[i_vel] * dt32
+        

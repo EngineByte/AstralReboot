@@ -13,6 +13,7 @@ from components.tags import DirtyMatrices, DirtyRemesh
 from components.chunk import Chunk
 from components.mesh import Mesh
 from components.parent_follow import ParentFollow
+from components.player_controller import PlayerController
 
 from systems.movement_system import system_movement
 from systems.camera_system import system_update_camera_matrices
@@ -20,12 +21,15 @@ from systems.render_system import system_render
 from systems.chunk_remesh_system import system_chunk_remesh
 from systems.chunk_draw_system import system_chunk_render
 from systems.parent_follow_system import system_parent_follow
+from systems.player_controller_system import system_player_controller
 
-from voxels.chunk_map import ChunkMap
-from voxels.voxel_pool import VoxelPool
+from resources.voxels.chunk_map import ChunkMap
+from resources.voxels.voxel_pool import VoxelPool
+from resources.input_state import InputState, bind_input
 
 from renderer.renderer import Renderer
 from renderer.mesh_pool import MeshPool
+from renderer.astralwindow import AstralWindow
 
 
 def setup_game_world(world: ECSWorld) -> None:
@@ -42,6 +46,12 @@ def setup_game_world(world: ECSWorld) -> None:
 
     world.add_component(player, Velocity(
         linear=np.zeros(3, dtype=np.float32)
+    ))
+
+    world.add_component(player, PlayerController(
+        move_speed=6.0,
+        mouse_sens=0.0025,
+        invert_y=False 
     ))
 
     camera = world.create_entity()
@@ -177,17 +187,30 @@ def setup_game_world(world: ECSWorld) -> None:
         SystemSpec(
             func=system_parent_follow,
             phase='update',
-            order=51,
+            order=50,
             name='parent_follow'
+        )
+    )
+
+    world.scheduler.add_system(
+        SystemSpec(
+            func=system_player_controller,
+            phase='update',
+            order=50,
+            name='player_controller'
         )
     )
 
     world.resources.add(VoxelPool, VoxelPool())
     world.resources.add(ChunkMap, ChunkMap())
     world.resources.add(MeshPool, MeshPool())
+    world.resources.add(InputState, InputState())
+    window = world.resources.get(AstralWindow)
+    bind_input(window, world)
 
     voxel_pool = world.resources.get(VoxelPool)
     chunk_map = world.resources.get(ChunkMap)
+    inputstate = world.resources.get(InputState)
 
     size = 32
     handle = voxel_pool.alloc(size=size, fill=0)

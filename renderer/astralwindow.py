@@ -10,3 +10,4 @@ class AstralWindow(Window):
     def on_draw(self):
         self.world.render()
         #print('AstralWindow on_draw')
+        
