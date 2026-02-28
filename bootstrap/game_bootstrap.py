@@ -12,12 +12,14 @@ from components.camera_matrices import CameraMatrices
 from components.tags import DirtyMatrices, DirtyRemesh
 from components.chunk import Chunk
 from components.mesh import Mesh
+from components.parent_follow import ParentFollow
 
 from systems.movement_system import system_movement
 from systems.camera_system import system_update_camera_matrices
 from systems.render_system import system_render
 from systems.chunk_remesh_system import system_chunk_remesh
 from systems.chunk_draw_system import system_chunk_render
+from systems.parent_follow_system import system_parent_follow
 
 from voxels.chunk_map import ChunkMap
 from voxels.voxel_pool import VoxelPool
@@ -55,6 +57,11 @@ def setup_game_world(world: ECSWorld) -> None:
         near=0.1,
         far=5000.0,
         aspect=1280.0 / 720.0,
+    ))
+    
+    world.add_component(camera, ParentFollow(
+        parent=player,
+        offset=np.array([0.0, 1.8, 0.0], dtype=np.float32)
     ))
 
     def construct_view_matrix(y, p, r, px, py, pz):
@@ -163,6 +170,15 @@ def setup_game_world(world: ECSWorld) -> None:
             phase='render', 
             order=50,
             name='chunk_render'
+        )
+    )
+    
+    world.scheduler.add_system(
+        SystemSpec(
+            func=system_parent_follow,
+            phase='update',
+            order=51,
+            name='parent_follow'
         )
     )
 
