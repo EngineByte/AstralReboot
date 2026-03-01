@@ -25,13 +25,13 @@ class StoreRegistry:
             return self._component_stores[typ]
         if typ in self._tag_stores:
             return self._tag_stores[typ]
-        raise KeyError(f"No store registered for type: {typ}")
+        raise KeyError(f'No store registered for type: {typ}')
 
     def add_component(self, eid: EntityId, component: Any) -> None:
         typ = type(component)
         store = self._component_stores.get(typ)
         if store is None:
-            raise KeyError(f"No component store registered for type: {typ}")
+            raise KeyError(f'No component store registered for type: {typ}')
         store.add(eid, component)
 
     def remove_component(self, eid: EntityId, typ: Type[Any]) -> None:
@@ -49,13 +49,13 @@ class StoreRegistry:
     def get_component(self, eid: EntityId, typ: Type[Any]) -> Any:
         store = self._component_stores.get(typ)
         if store is None:
-            raise KeyError(f"No component store registered for type: {typ}")
+            raise KeyError(f'No component store registered for type: {typ}')
         return store
 
     def add_tag(self, eid: EntityId, tag_type: Type[Any]) -> None:
         store = self._tag_stores.get(tag_type)
         if store is None:
-            raise KeyError(f"No tag store registered for type: {tag_type}")
+            raise KeyError(f'No tag store registered for type: {tag_type}')
         store.add(eid)
 
     def remove_tag(self, eid: EntityId, tag_type: Type[Any]) -> None:
@@ -89,7 +89,7 @@ class StoreRegistry:
             elif t in self._tag_stores:
                 tag_types.append(t)
             else:
-                raise KeyError(f"Type not registered as component or tag: {t}")
+                raise KeyError(f'Type not registered as component or tag: {t}')
 
         drive_store = None
         drive_is_tag = False
@@ -137,6 +137,6 @@ class StoreRegistry:
 
     def stats(self) -> Dict[str, Any]:
         return {
-            "components": {t.__name__: s.stats() for t, s in self._component_stores.items()},
-            "tags": {t.__name__: s.stats() for t, s in self._tag_stores.items()},
+            'components': {t.__name__: s.stats() for t, s in self._component_stores.items()},
+            'tags': {t.__name__: s.stats() for t, s in self._tag_stores.items()},
         }

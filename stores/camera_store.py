@@ -35,7 +35,7 @@ class CameraStore(SoAStore):
 
     def _on_add_dense(self, dense_i: int, component: Any) -> None:
         if not isinstance(component, Camera):
-            raise TypeError(f"CameraStore expected Camera, got {type(component)}")
+            raise TypeError(f'CameraStore expected Camera, got {type(component)}')
 
         self.fov[dense_i] = np.float32(component.fov)
         self.aspect[dense_i] = np.float32(component.aspect)

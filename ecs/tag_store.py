@@ -36,7 +36,7 @@ class TagStore:
     def add(self, eid: EntityId) -> None:
         si = int(entity_index(eid))
         if si < 0 or si >= self.entity_capacity:
-            raise ValueError(f"Entity index out of range for TagStore: {si}")
+            raise ValueError(f'Entity index out of range for TagStore: {si}')
 
         if int(self._sparse_to_dense[si]) != -1:
             return
@@ -82,6 +82,6 @@ class TagStore:
 
     def stats(self) -> Dict[str, Any]:
         return {
-            "dense_size": self._dense_size,
-            "dense_capacity": int(self._dense_eids.shape[0]),
+            'dense_size': self._dense_size,
+            'dense_capacity': int(self._dense_eids.shape[0]),
         }

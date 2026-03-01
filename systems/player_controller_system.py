@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from typing import Set, Tuple
 
-import pyglet
-from pyglet.window import key, mouse
+from pyglet.window import key
 import numpy as np
 
 from ecs.world import ECSWorld
@@ -14,7 +12,6 @@ from components.transform import Transform
 from components.velocity import Velocity
 from resources.input_state import InputState
 from renderer.astralwindow import AstralWindow
-from systems.movement_system import system_movement
 
 
 def system_player_controller(world: 'ECSWorld', dt: float) -> None:
@@ -36,7 +33,6 @@ def system_player_controller(world: 'ECSWorld', dt: float) -> None:
     
     if key.W in inp.keys_down:
         forward -= 1.0
-        print('w')
         
     if key.A in inp.keys_down:
         strafe += 1.0

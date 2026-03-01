@@ -72,12 +72,12 @@ class SystemScheduler:
                 return True
         return False
 
-    def run_phase(self, phase: str, world: "ECSWorld") -> None:
+    def run_phase(self, phase: str, world: 'ECSWorld') -> None:
         if phase not in self._phases:
             return
 
         systems = self._get_sorted_phase(phase)
-        dt = getattr(world, "dt_seconds", 0.0)
+        dt = getattr(world, 'dt_seconds', 0.0)
 
         for spec in systems:
             if not spec.enabled:
@@ -97,7 +97,7 @@ class SystemScheduler:
 
     def stats(self) -> Dict[str, object]:
         return {
-            "phases": {
+            'phases': {
                 phase: [s.system_name() for s in self._get_sorted_phase(phase)]
                 for phase in self._phases.keys()
             }

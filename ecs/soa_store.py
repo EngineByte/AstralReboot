@@ -9,7 +9,7 @@ import numpy.typing as npt
 from ecs.entity_allocator import EntityId, Index, entity_index
 
 
-T = TypeVar("T")
+T = TypeVar('T')
 
 
 class SoAStore:
@@ -58,13 +58,13 @@ class SoAStore:
         si = int(entity_index(eid))
         di = int(self._sparse_to_dense[si])
         if di == -1:
-            raise KeyError(f"Entity does not have component in this store: eid={int(eid)}")
+            raise KeyError(f'Entity does not have component in this store: eid={int(eid)}')
         return di
 
     def add(self, eid: EntityId, component: Any) -> None:
         si = int(entity_index(eid))
         if si < 0 or si >= self.entity_capacity:
-            raise ValueError(f"Entity index out of range for store: {si}")
+            raise ValueError(f'Entity index out of range for store: {si}')
 
         existing = int(self._sparse_to_dense[si])
         if existing != -1:
@@ -115,6 +115,6 @@ class SoAStore:
 
     def stats(self) -> Dict[str, Any]:
         return {
-            "dense_size": self._dense_size,
-            "dense_capacity": int(self._dense_eids.shape[0]),
+            'dense_size': self._dense_size,
+            'dense_capacity': int(self._dense_eids.shape[0]),
         }

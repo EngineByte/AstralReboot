@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from ecs.world import ECSWorld
 
 
-def system_movement(world: "ECSWorld", dt: float) -> None:
+def system_movement(world: 'ECSWorld', dt: float) -> None:
     tr = world.store(Transform)
     vel = world.store(Velocity)
     dt32 = np.float32(dt)

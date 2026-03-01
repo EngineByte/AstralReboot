@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional, Type, TypeVar
 
-T = TypeVar("T")
+T = TypeVar('T')
 
 
 class ResourceRegistry:
@@ -16,7 +16,7 @@ class ResourceRegistry:
         try:
             return self._resources[typ]
         except KeyError as e:
-            raise KeyError(f"Resource not found: {typ}") from e
+            raise KeyError(f'Resource not found: {typ}') from e
 
     def try_get(self, typ: Type[T]) -> Optional[T]:
         v = self._resources.get(typ)
@@ -32,4 +32,4 @@ class ResourceRegistry:
         self._resources.clear()
 
     def stats(self) -> Dict[str, Any]:
-        return {"resources": [t.__name__ for t in self._resources.keys()]}
+        return {'resources': [t.__name__ for t in self._resources.keys()]}

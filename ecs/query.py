@@ -15,9 +15,9 @@ class QuerySpec:
 
 
 class Query:
-    def __init__(self, world: "ECSWorld", include: Sequence[Type[Any]]) -> None:
+    def __init__(self, world: 'ECSWorld', include: Sequence[Type[Any]]) -> None:
         if not include:
-            raise ValueError("Query(include=...) must contain at least one type")
+            raise ValueError('Query(include=...) must contain at least one type')
 
         self._world = world
         self._spec = QuerySpec(include=tuple(include))

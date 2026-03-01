@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from ecs.world import ECSWorld
 
 
-def system_render(world: "ECSWorld", dt: float) -> None:
+def system_pre_render(world: 'ECSWorld', dt: float) -> None:
     renderer = world.resources.get(Renderer)
 
     mats_store:CameraMatricesStore = world.store(CameraMatrices)
@@ -25,14 +25,11 @@ def system_render(world: "ECSWorld", dt: float) -> None:
         cam_mats_i = i_mats
         break
 
-    renderer.begin_frame()
 
     if cam_mats_i is not None:
         view = mats_store.view[cam_mats_i]
         proj = mats_store.proj[cam_mats_i]
         renderer.set_camera(view=view, proj=proj)
+        
+    renderer.begin_frame()
 
-    renderer.draw_world(world)
-    renderer.end_frame()
-
-    #print('render system')

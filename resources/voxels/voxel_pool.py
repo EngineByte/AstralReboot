@@ -20,7 +20,7 @@ class VoxelPool:
     def alloc(self, size: int, fill: int = 0) -> int:
         size = int(size)
         if size <= 0:
-            raise ValueError("size must be positive")
+            raise ValueError('size must be positive')
 
         if self._free:
             h = self._free.pop()

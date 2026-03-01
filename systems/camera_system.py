@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from ecs.world import ECSWorld
 
 
-def system_update_camera_matrices(world: "ECSWorld", dt: float) -> None:
+def system_update_camera_matrices(world: 'ECSWorld', dt: float) -> None:
     tr = world.store(Transform)            
     cam = world.store(Camera)             
     mats = world.store(CameraMatrices)    

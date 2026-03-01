@@ -11,7 +11,7 @@ from renderer.mesh_pool import MeshPool
 from resources.voxels.meshing import build_surface_mesh_from_voxels
 
 
-def system_chunk_remesh(world: "ECSWorld", dt: float) -> None:
+def system_chunk_remesh(world: 'ECSWorld', dt: float) -> None:
     chunks = world.store(Chunk)    
     meshes = world.store(Mesh)  
 
@@ -23,7 +23,7 @@ def system_chunk_remesh(world: "ECSWorld", dt: float) -> None:
         handle = int(chunks.voxel_handle[i_chunk])
 
         block = voxel_pool.block(handle)
-        verts, indices = build_surface_mesh_from_voxels(block.data, size=size)
+        verts, indices = build_surface_mesh_from_voxels(block.data, size=size, method='naive')
 
         cur_mesh_id = int(meshes.mesh_id[i_mesh])
         new_mesh_id = mesh_pool.upload_or_replace(cur_mesh_id, verts, indices)

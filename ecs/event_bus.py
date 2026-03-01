@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, Deque, Dict, List, Optional, Type, TypeVar
 from collections import deque
 
-T = TypeVar("T")
+T = TypeVar('T')
 Handler = Callable[[Any], None]
 
 
@@ -54,6 +54,6 @@ class EventBus:
 
     def stats(self) -> Dict[str, Any]:
         return {
-            "queued": len(self._queue),
-            "event_types": {k.__name__: len(v) for k, v in self._handlers.items()},
+            'queued': len(self._queue),
+            'event_types': {k.__name__: len(v) for k, v in self._handlers.items()},
         }

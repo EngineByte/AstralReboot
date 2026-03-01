@@ -62,6 +62,7 @@ def create_ecs_world(entity_capacity: int = 100_000) -> ECSWorld:
 
     scheduler.add_phase("update")
     scheduler.add_phase("late_update")
+    scheduler.add_phase('pre_render')
     scheduler.add_phase("render")
 
     return world

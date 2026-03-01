@@ -24,7 +24,7 @@ class MeshStore(SoAStore):
 
     def _on_add_dense(self, dense_i: int, component: Any) -> None:
         if not isinstance(component, Mesh):
-            raise TypeError(f"ChunkMeshStore expected ChunkMesh, got {type(component)}")
+            raise TypeError(f'ChunkMeshStore expected ChunkMesh, got {type(component)}')
         self.mesh_id[dense_i] = np.int32(component.mesh_id)
 
     def _on_move_dense(self, dst_i: int, src_i: int) -> None:

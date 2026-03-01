@@ -12,7 +12,7 @@ from ecs.store_registry import StoreRegistry
 from ecs.event_bus import EventBus
 from ecs.resources import ResourceRegistry
 
-T = TypeVar("T")
+T = TypeVar('T')
 
 
 class ECSWorld:
@@ -55,7 +55,7 @@ class ECSWorld:
 
     def _require_alive(self, eid: int) -> None:
         if not self.allocator.is_alive(eid):
-            raise ValueError(f"Entity {eid} is not alive")
+            raise ValueError(f'Entity {eid} is not alive')
 
     def register_store(self, component_type: Type[T], store: Any) -> None:
         self.stores.register(component_type, store)
@@ -119,15 +119,18 @@ class ECSWorld:
         self.time_seconds += self.dt_seconds
         self.frame_index += 1
 
-        self.scheduler.run_phase("update", self)
+        self.scheduler.run_phase('update', self)
         self.command_buffer.flush(self)
 
-        self.scheduler.run_phase("late_update", self)
+        self.scheduler.run_phase('late_update', self)
         self.command_buffer.flush(self)
 
         self.event_bus.flush()
 
     def render(self) -> None:
+        self.scheduler.run_phase('pre_render', self)
+        self.command_buffer.flush(self)
+        
         self.scheduler.run_phase('render', self)
         self.command_buffer.flush(self)        
 
@@ -135,9 +138,9 @@ class ECSWorld:
 
     def stats(self) -> Dict[str, Any]:
         return {
-            "frame": self.frame_index,
-            "time": self.time_seconds,
-            "dt": self.dt_seconds,
-            "entities_alive": self.allocator.alive_count(),
-            "stores": self.stores.stats(),
+            'frame': self.frame_index,
+            'time': self.time_seconds,
+            'dt': self.dt_seconds,
+            'entities_alive': self.allocator.alive_count(),
+            'stores': self.stores.stats(),
         }

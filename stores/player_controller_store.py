@@ -33,7 +33,7 @@ class PlayerControllerStore(SoAStore):
 
     def _on_add_dense(self, dense_i: int, component: Any) -> None:
         if not isinstance(component, PlayerController):
-            raise TypeError(f"PlayerControllerStore expected PlayerController, got {type(component)}")
+            raise TypeError(f'PlayerControllerStore expected PlayerController, got {type(component)}')
 
         self.move_speed[dense_i] = np.float32(component.move_speed)
         self.mouse_sens[dense_i] = np.float32(component.mouse_sens)

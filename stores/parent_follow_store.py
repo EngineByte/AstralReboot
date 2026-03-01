@@ -36,11 +36,11 @@ class ParentFollowStore(SoAStore):
 
     def _on_add_dense(self, dense_i: int, component: Any) -> None:
         if not isinstance(component, ParentFollow):
-            raise TypeError(f"ParentFollowStore expected ParentFollow, got {type(component)}")
+            raise TypeError(f'ParentFollowStore expected ParentFollow, got {type(component)}')
 
         o = component.offset
         if o.shape != (3,):
-            raise ValueError("ParentFollow.offset must be shape (3,) float32 array")
+            raise ValueError('ParentFollow.offset must be shape (3,) float32 array')
         self.parent[dense_i] = component.parent
         self.ox[dense_i] = np.float32(o[0])
         self.oy[dense_i] = np.float32(o[1])

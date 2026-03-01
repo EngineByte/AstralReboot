@@ -100,13 +100,13 @@ class Renderer:
             indices = indices.astype(np.uint32, copy=False)
 
         if verts.ndim != 2 or verts.shape[1] != 8:
-            raise ValueError(f"verts must be shape (N, 8), got {verts.shape}")
+            raise ValueError(f'verts must be shape (N, 8), got {verts.shape}')
         if indices.ndim != 1:
-            raise ValueError(f"indices must be shape (M,), got {indices.shape}")
+            raise ValueError(f'indices must be shape (M,), got {indices.shape}')
 
-        if not verts.flags["C_CONTIGUOUS"]:
+        if not verts.flags['C_CONTIGUOUS']:
             verts = np.ascontiguousarray(verts, dtype=np.float32)
-        if not indices.flags["C_CONTIGUOUS"]:
+        if not indices.flags['C_CONTIGUOUS']:
             indices = np.ascontiguousarray(indices, dtype=np.uint32)
 
         gm = self._gpu_meshes.get(mesh_id)
@@ -202,12 +202,12 @@ class Renderer:
             proj.flatten('F').ctypes.data_as(ct.POINTER(gl.GLfloat))
         )
 
-    def draw_world(self, world: "ECSWorld") -> None:
+    def draw_world(self, world: 'ECSWorld') -> None:
         gl.glUseProgram(self._program)
         gl.glBindVertexArray(self._vao)
         gl.glDrawElements(
             gl.GL_TRIANGLES,
-            6,
+            0,
             gl.GL_UNSIGNED_INT,
             0
         )

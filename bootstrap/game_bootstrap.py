@@ -17,11 +17,11 @@ from components.player_controller import PlayerController
 
 from systems.movement_system import system_movement
 from systems.camera_system import system_update_camera_matrices
-from systems.render_system import system_render
-from systems.chunk_remesh_system import system_chunk_remesh
 from systems.chunk_draw_system import system_chunk_render
+from systems.chunk_remesh_system import system_chunk_remesh
 from systems.parent_follow_system import system_parent_follow
 from systems.player_controller_system import system_player_controller
+from systems.pre_render_system import system_pre_render
 
 from resources.voxels.chunk_map import ChunkMap
 from resources.voxels.voxel_pool import VoxelPool
@@ -152,16 +152,8 @@ def setup_game_world(world: ECSWorld) -> None:
     world.scheduler.add_system(
         SystemSpec(
             func=system_update_camera_matrices,
-            phase="late_update",
+            phase='late_update',
             name='update_camera_matrices'
-        )
-    )
-
-    world.scheduler.add_system(
-        SystemSpec(
-            func=system_render,
-            phase="render",
-            name='render'
         )
     )
 
@@ -200,6 +192,15 @@ def setup_game_world(world: ECSWorld) -> None:
             name='player_controller'
         )
     )
+    
+    world.scheduler.add_system(
+        SystemSpec(
+            func=system_pre_render,
+            phase='pre_render',
+            order=50,
+            name='pre_render'
+        )
+    )
 
     world.resources.add(VoxelPool, VoxelPool())
     world.resources.add(ChunkMap, ChunkMap())
@@ -218,10 +219,13 @@ def setup_game_world(world: ECSWorld) -> None:
     block = voxel_pool.block(handle)
 
     def idx(x, y, z): return x + size*(y + size*z)
+    
+    rng = np.random.default_rng()
 
-    for z in range(10, 14):
-        for x in range(10, 14):
-            block.data[idx(x, 10, z)] = 1
+    for x in range(size):
+        for y in range(size):
+            for z in range(size):
+                block.data[idx(x, y, z)] = 1 if rng.random() > 0.33 else 0
 
     chunk_eid = world.create_entity()
     world.add_component(chunk_eid, Chunk(coord=np.array([0,0,0], dtype=np.int32), size=size, voxel_handle=handle))

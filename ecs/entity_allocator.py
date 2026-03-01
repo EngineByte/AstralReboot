@@ -27,7 +27,7 @@ def make_entity_id(index: Index, generation: Generation) -> EntityId:
 class EntityAllocator:
     def __init__(self, capacity: int) -> None:
         if capacity <= 0:
-            raise ValueError("capacity must be > 0")
+            raise ValueError('capacity must be > 0')
 
         self._capacity: int = int(capacity)
 
@@ -49,8 +49,8 @@ class EntityAllocator:
     def create(self) -> EntityId:
         if self._free_top == 0:
             raise RuntimeError(
-                f"EntityAllocator exhausted: capacity={self._capacity}. "
-                f"Increase capacity or recycle entities."
+                f'EntityAllocator exhausted: capacity={self._capacity}. '
+                f'Increase capacity or recycle entities.'
             )
 
         self._free_top -= 1
@@ -86,15 +86,15 @@ class EntityAllocator:
         gen = int(entity_generation(eid))
 
         if idx < 0 or idx >= self._capacity:
-            raise ValueError(f"Invalid entity index: {idx} (capacity={self._capacity})")
+            raise ValueError(f'Invalid entity index: {idx} (capacity={self._capacity})')
 
         if not bool(self._alive[idx]):
-            raise ValueError(f"Entity is not alive: eid={int(eid)} idx={idx}")
+            raise ValueError(f'Entity is not alive: eid={int(eid)} idx={idx}')
 
         cur_gen = int(self._generations[idx])
         if gen != cur_gen:
             raise ValueError(
-                f"Stale entity handle: eid={int(eid)} idx={idx} gen={gen} current_gen={cur_gen}"
+                f'Stale entity handle: eid={int(eid)} idx={idx} gen={gen} current_gen={cur_gen}'
             )
 
         return idx
@@ -102,7 +102,7 @@ class EntityAllocator:
     def grow(self, new_capacity: int) -> None:
         new_capacity = int(new_capacity)
         if new_capacity <= self._capacity:
-            raise ValueError("new_capacity must be greater than current capacity")
+            raise ValueError('new_capacity must be greater than current capacity')
 
         old_cap = self._capacity
         self._capacity = new_capacity
@@ -123,7 +123,7 @@ class EntityAllocator:
 
     def stats(self) -> dict:
         return {
-            "capacity": self._capacity,
-            "alive_count": self._alive_count,
-            "free_count": self._free_top,
+            'capacity': self._capacity,
+            'alive_count': self._alive_count,
+            'free_count': self._free_top,
         }

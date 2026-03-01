@@ -21,5 +21,8 @@ def system_chunk_render(world: "ECSWorld", dt: float) -> None:
         mesh = mesh_pool.get(mesh_id)
         if mesh is None or mesh.indices.size == 0:
             continue
-
+        
         renderer.draw_mesh(mesh_id, mesh.verts, mesh.indices)
+        
+    renderer.end_frame()
+        

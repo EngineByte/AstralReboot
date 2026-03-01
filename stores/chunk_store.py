@@ -37,11 +37,11 @@ class ChunkStore(SoAStore):
 
     def _on_add_dense(self, dense_i: int, component: Any) -> None:
         if not isinstance(component, Chunk):
-            raise TypeError(f"ChunkStore expected Chunk, got {type(component)}")
+            raise TypeError(f'ChunkStore expected Chunk, got {type(component)}')
 
         c = component.coord
         if c.shape != (3,):
-            raise ValueError("Chunk.coord must be shape (3,) int32 array")
+            raise ValueError('Chunk.coord must be shape (3,) int32 array')
 
         self.cx[dense_i] = np.int32(c[0])
         self.cy[dense_i] = np.int32(c[1])

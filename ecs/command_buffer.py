@@ -63,9 +63,9 @@ class CommandBuffer:
     def destroy_entity(self, eid: EntityId) -> None:
         self._destroy_entities.append(_DestroyEntity(eid=eid))
 
-    def flush(self, world: "ECSWorld") -> None:
+    def flush(self, world: 'ECSWorld') -> None:
         if self._flushing:
-            raise RuntimeError("CommandBuffer.flush() re-entered")
+            raise RuntimeError('CommandBuffer.flush() re-entered')
         self._flushing = True
         try:
             for cmd in self._remove_components:
@@ -101,9 +101,9 @@ class CommandBuffer:
 
     def stats(self) -> dict:
         return {
-            "add_components": len(self._add_components),
-            "remove_components": len(self._remove_components),
-            "add_tags": len(self._add_tags),
-            "remove_tags": len(self._remove_tags),
-            "destroy_entities": len(self._destroy_entities),
+            'add_components': len(self._add_components),
+            'remove_components': len(self._remove_components),
+            'add_tags': len(self._add_tags),
+            'remove_tags': len(self._remove_tags),
+            'destroy_entities': len(self._destroy_entities),
         }

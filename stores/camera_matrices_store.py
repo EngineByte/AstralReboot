@@ -41,10 +41,10 @@ class CameraMatricesStore(SoAStore):
 
     def _on_add_dense(self, dense_i: int, component: Any) -> None:
         if not isinstance(component, CameraMatrices):
-            raise TypeError(f"CameraMatricesStore expected CameraMatrices, got {type(component)}")
+            raise TypeError(f'CameraMatricesStore expected CameraMatrices, got {type(component)}')
 
         if component.view.shape != (4, 4) or component.projection.shape != (4, 4):
-            raise ValueError("CameraMatrices.view/projection must be shape (4,4) float32 matrices")
+            raise ValueError('CameraMatrices.view/projection must be shape (4,4) float32 matrices')
 
         self.view[dense_i] = component.view.astype(np.float32, copy=False)
         self.proj[dense_i] = component.projection.astype(np.float32, copy=False)

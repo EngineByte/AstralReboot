@@ -33,11 +33,11 @@ class VelocityStore(SoAStore):
 
     def _on_add_dense(self, dense_i: int, component: Any) -> None:
         if not isinstance(component, Velocity):
-            raise TypeError(f"VelocityStore expected Velocity, got {type(component)}")
+            raise TypeError(f'VelocityStore expected Velocity, got {type(component)}')
 
         v = component.linear
         if v.shape != (3,):
-            raise ValueError("Velocity.linear must be shape (3,) float32 array")
+            raise ValueError('Velocity.linear must be shape (3,) float32 array')
 
         self.vx[dense_i] = np.float32(v[0])
         self.vy[dense_i] = np.float32(v[1])

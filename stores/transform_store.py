@@ -50,14 +50,14 @@ class TransformStore(SoAStore):
 
     def _on_add_dense(self, dense_i: int, component: Any) -> None:
         if not isinstance(component, Transform):
-            raise TypeError(f"TransformStore expected Transform, got {type(component)}")
+            raise TypeError(f'TransformStore expected Transform, got {type(component)}')
 
         p = component.position
         r = component.rotation
         s = component.scale
 
         if p.shape != (3,) or r.shape != (3,) or s.shape != (3,):
-            raise ValueError("Transform.position/rotation_ypr/scale must be shape (3,) float32 arrays")
+            raise ValueError('Transform.position/rotation_ypr/scale must be shape (3,) float32 arrays')
 
         self.px[dense_i] = np.float32(p[0])
         self.py[dense_i] = np.float32(p[1])
