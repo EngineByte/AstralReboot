@@ -229,6 +229,11 @@ def setup_game_world(world: ECSWorld) -> None:
 
     chunk_eid = world.create_entity()
     world.add_component(chunk_eid, Chunk(coord=np.array([0,0,0], dtype=np.int32), size=size, voxel_handle=handle))
+    world.add_component(chunk_eid, Transform(
+        position=np.array([0.0, 0.0, 0.0],dtype=np.float32),
+        rotation=np.array([0.0, 0.0, 0.0], dtype=np.float32),
+        scale=np.array([1.0, 1.0, 1.0], dtype=np.float32)
+    ))
     world.add_component(chunk_eid, Mesh(mesh_id=-1))
     world.add_tag(chunk_eid, DirtyRemesh) 
 
