@@ -9,4 +9,4 @@ pip
 
 ## Run
 pip install -r requirements.txt
-python src/main.py
+python src/__main__.py

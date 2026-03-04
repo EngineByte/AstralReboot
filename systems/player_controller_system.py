@@ -69,13 +69,9 @@ def system_player_controller(world: 'ECSWorld', dt: float) -> None:
         rx = cy
         rz = -sy
         
-        vx = (fx * forward + rx * strafe) * speed
-        vz = (fz * forward + rz * strafe) * speed
-        vy = up * speed
-        
-        vel.vx[i_v] = vx
-        vel.vy[i_v] = vy
-        vel.vz[i_v] = vz
+        vel.vx[i_v] = (fx * forward + rx * strafe) * speed
+        vel.vy[i_v] = up * speed
+        vel.vz[i_v] = (fz * forward + rz * strafe) * speed
         
         
           

@@ -20,7 +20,7 @@ _FACES = [
 
 
 def build_surface_mesh_from_voxels(
-    pos: tuple[float], vox: npt.NDArray[np.uint8], size: int, solid_threshold: int = 1, method='default'
+    vox: npt.NDArray[np.uint8], size: int, solid_threshold: int = 1, method='default'
 ) -> tuple[FloatArray, IndexArray]:
     
     size = int(size)
@@ -61,7 +61,7 @@ def build_surface_mesh_from_voxels(
         return verts
 
 
-    def cube_mesh_at(x: int, y: int, z: int, pos: tuple[float, ...]) -> list[list[float]]:
+    def cube_mesh_at(x: int, y: int, z: int) -> list[list[float]]:
         verts = np.ndarray((0, 8), dtype=np.float32)
         _cpos = [
             [1.0, 1.0, 0.0],
@@ -114,7 +114,6 @@ def build_surface_mesh_from_voxels(
             m = c % 4
             
             vpos = np.array(_cpos[c], dtype=np.float32) + np.array([x, y, z], dtype=np.float32)
-                
             vnorm = np.array(_cnorm[f], dtype=np.float32)
             vuv = np.array(_cuv[m], dtype=np.float32)
             
@@ -123,13 +122,13 @@ def build_surface_mesh_from_voxels(
         
         return verts 
 
-    def naive_mesher(size: int, pos: tuple[float, float, float]) -> np.ndarray[np.float32]:
+    def naive_mesher(size: int) -> np.ndarray[np.float32]:
         verts = np.ndarray((0, 8), dtype=np.float32)
         for x in range(size):
             for y in range(size):
                 for z in range(size):
                     if solid(x, y, z):
-                        vert = cube_mesh_at(x, y, z, pos)
+                        vert = cube_mesh_at(x, y, z)
                         verts = np.vstack((verts, vert))
                         
         return verts
@@ -142,7 +141,7 @@ def build_surface_mesh_from_voxels(
         n1: int
 
 
-    def greedy_mesher(size: int, pos: tuple[float, float, float]) -> np.ndarray[np.float32]:
+    def greedy_mesher(size: int) -> np.ndarray[np.float32]:
         def get_slicemap(dir: str, slc):
             slicemap = np.empty((size, size), dtype=np.uint8)
             
@@ -365,9 +364,9 @@ def build_surface_mesh_from_voxels(
     if method == 'default':
         verts = default_mesher(size)
     elif method == 'naive':
-        verts = naive_mesher(size, pos)
+        verts = naive_mesher(size)
     elif method == 'greedy':
-        verts = greedy_mesher(size, pos)
+        verts = greedy_mesher(size)
         
     inds = np.array([], dtype=np.uint32)
     face_count = verts.shape[0] // 4

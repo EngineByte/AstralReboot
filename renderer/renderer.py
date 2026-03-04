@@ -23,6 +23,7 @@ layout(location=0) in vec3 aPos;
 layout(location=1) in vec3 aNorm;
 layout(location=2) in vec2 aUV;
 
+uniform mat4 model;
 uniform mat4 view;
 uniform mat4 proj;
 
@@ -32,10 +33,10 @@ out vec2 fUV;
 
 void main(){
     fPos = aPos;
-    fNorm = aNorm;
+    fNorm = mat3(model) * aNorm;
     fUV = aUV;
 
-    gl_Position = proj * view * vec4(aPos, 1.0);
+    gl_Position = proj * view * model *vec4(aPos, 1.0);
 }
 '''
 
@@ -83,6 +84,7 @@ class Renderer:
         gl.glUseProgram(self._program)
         self._u_view = gl.glGetUniformLocation(self._program, b'view')
         self._u_proj = gl.glGetUniformLocation(self._program, b'proj')
+        self._u_model = gl.glGetUniformLocation(self._program, b'model')
 
         self._gpu_meshes: Dict[int, _GpuMesh] = {}
 
@@ -93,7 +95,7 @@ class Renderer:
         gl.glCullFace(gl.GL_BACK)
         gl.glFrontFace(gl.GL_CCW)
 
-    def draw_mesh(self, mesh_id: int, verts: FloatArray, indices: IndexArray) -> None:
+    def draw_mesh(self, mesh_id: int, verts: FloatArray, indices: IndexArray, model: npt.NDArray[np.float32]) -> None:
         if verts.dtype != np.float32:
             verts = verts.astype(np.float32, copy=False)
         if indices.dtype != np.uint32:
@@ -113,7 +115,18 @@ class Renderer:
         if gm is None:
             gm = self._create_gpu_mesh(mesh_id)
         self._upload_gpu_mesh(gm, verts, indices)
+        self._update_model_uniform(model)
         self._draw_gpu_mesh(gm)
+
+    def _update_model_uniform(self, model: npt.NDArray[np.float32]) -> None:
+        gl.glUseProgram(self._program)
+
+        gl.glUniformMatrix4fv(
+            self._u_model,
+            1,
+            gl.GL_FALSE,
+            model.flatten('F').ctypes.data_as(ct.POINTER(gl.GLfloat))
+        )
 
     def _create_gpu_mesh(self, mesh_id: int) -> _GpuMesh:
         vao = gl.GLuint(0)

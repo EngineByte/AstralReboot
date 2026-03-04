@@ -7,6 +7,8 @@ from components.camera import Camera
 from components.camera_matrices import CameraMatrices
 from renderer.renderer import Renderer
 from stores.camera_matrices_store import CameraMatricesStore
+from stores.model_matrix_store import ModelMatrixStore
+from components.model_matrix import ModelMatrix
 
 if TYPE_CHECKING:
     from ecs.world import ECSWorld
@@ -15,7 +17,7 @@ if TYPE_CHECKING:
 def system_pre_render(world: 'ECSWorld', dt: float) -> None:
     renderer = world.resources.get(Renderer)
 
-    mats_store:CameraMatricesStore = world.store(CameraMatrices)
+    mats_store: CameraMatricesStore = world.store(CameraMatrices)
 
     cam_eid = None
     cam_mats_i = None
@@ -24,7 +26,6 @@ def system_pre_render(world: 'ECSWorld', dt: float) -> None:
         cam_eid = eid
         cam_mats_i = i_mats
         break
-
 
     if cam_mats_i is not None:
         view = mats_store.view[cam_mats_i]

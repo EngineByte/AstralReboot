@@ -4,10 +4,10 @@ from dataclasses import dataclass
 import numpy as np
 import numpy.typing as npt
 
-Float3 = npt.NDArray[np.float32]
+Mat4 = npt.NDArray[np.float32]
 
 
 @dataclass(slots=True)
-class Velocity:
-    linear: Float3
-    angular: Float3
+class ModelMatrix:
+    model: Mat4
+    centre: tuple[float, float, float]

@@ -7,3 +7,7 @@ class DirtyMatrices:
 
 class DirtyRemesh:
     pass
+
+
+class DirtyRemodel:
+    pass

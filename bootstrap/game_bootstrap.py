@@ -7,13 +7,16 @@ from ecs.system_spec import SystemSpec
 
 from components.transform import Transform
 from components.velocity import Velocity
+from components.acceleration import Acceleration
 from components.camera import Camera
 from components.camera_matrices import CameraMatrices
-from components.tags import DirtyMatrices, DirtyRemesh
+from components.model_matrix import ModelMatrix
+from components.tags import DirtyMatrices, DirtyRemesh, DirtyRemodel
 from components.chunk import Chunk
 from components.mesh import Mesh
 from components.parent_follow import ParentFollow
 from components.player_controller import PlayerController
+from components.gravity import GravityWell
 
 from systems.movement_system import system_movement
 from systems.camera_system import system_update_camera_matrices
@@ -22,6 +25,7 @@ from systems.chunk_remesh_system import system_chunk_remesh
 from systems.parent_follow_system import system_parent_follow
 from systems.player_controller_system import system_player_controller
 from systems.pre_render_system import system_pre_render
+from systems.update_models_system import system_update_model_matrices
 
 from resources.voxels.chunk_map import ChunkMap
 from resources.voxels.voxel_pool import VoxelPool
@@ -39,14 +43,17 @@ def setup_game_world(world: ECSWorld) -> None:
     player = world.create_entity()
 
     world.add_component(player, Transform(
-        position=np.array([0.0, 0.0, -5.0], dtype=np.float32),
+        position=np.array([0.0, 50.0, -50.0], dtype=np.float32),
         rotation=np.array([0.0, 0.0, 0.0], dtype=np.float32),
         scale=np.array([1.0, 1.0, 1.0], dtype=np.float32),
     ))
 
     world.add_component(player, Velocity(
-        linear=np.zeros(3, dtype=np.float32)
+        linear=np.zeros(3, dtype=np.float32),
+        angular=np.array([0.0, 0.0, 0.0], dtype=np.float32)
     ))
+
+    world.add_component(player, Acceleration())
 
     world.add_component(player, PlayerController(
         move_speed=6.0,
@@ -159,6 +166,14 @@ def setup_game_world(world: ECSWorld) -> None:
 
     world.scheduler.add_system(
         SystemSpec(
+            func=system_update_model_matrices,
+            phase='late_update',
+            name='update_model_matrices'
+        )
+    )
+
+    world.scheduler.add_system(
+        SystemSpec(
             func=system_chunk_remesh,
             phase='update', 
             order=50,
@@ -213,14 +228,58 @@ def setup_game_world(world: ECSWorld) -> None:
     chunk_map = world.resources.get(ChunkMap)
     inputstate = world.resources.get(InputState)
 
+    def idx(x, y, z): return x + size*(y + size*z)
+    rng = np.random.default_rng()
+
     size = 32
     handle = voxel_pool.alloc(size=size, fill=0)
 
     block = voxel_pool.block(handle)
 
-    def idx(x, y, z): return x + size*(y + size*z)
+    for x in range(size):
+        for y in range(size):
+            for z in range(size):
+                block.data[idx(x, y, z)] = 1 if rng.random() > 0.33 else 0
+
+    planet_eid = world.create_entity()
+    world.add_component(planet_eid, Chunk(
+        coord=np.array([0, 0, 1], dtype=np.int32),
+        size=size,
+        voxel_handle=handle
+    ))
+
+    world.add_component(planet_eid, Transform(
+        position=np.array([0.0, 0.0, 0.0],dtype=np.float32),
+        rotation=np.array([0.0, 0.0, 0.0], dtype=np.float32),
+        scale=np.array([1.0, 1.0, 1.0], dtype=np.float32)
+    ))    
+
+    world.add_component(planet_eid, Velocity(
+        linear=np.array([0.0, 0.0, 0.0], dtype=np.float32),
+        angular=np.array([0.0, 24.0, 0.0], dtype=np.float32)
+    ))
+
+    world.add_component(planet_eid, Mesh(
+        mesh_id=-1,
+
+    ))
+    world.add_tag(planet_eid, DirtyRemesh) 
+
+    world.add_component(planet_eid, ModelMatrix(
+        model=np.identity(4, dtype=np.float32),
+        centre=(16.0, 16.0, 16.0)
+    ))
+    world.add_tag(planet_eid, DirtyRemodel)
+    world.add_component(planet_eid, Acceleration())
+
+    chunk_map.set((0,0,1), planet_eid)
+
+
+    size = 8
+    handle = voxel_pool.alloc(size=size, fill=0)
+
+    block = voxel_pool.block(handle)
     
-    rng = np.random.default_rng()
 
     for x in range(size):
         for y in range(size):
@@ -228,13 +287,38 @@ def setup_game_world(world: ECSWorld) -> None:
                 block.data[idx(x, y, z)] = 1 if rng.random() > 0.33 else 0
 
     chunk_eid = world.create_entity()
-    world.add_component(chunk_eid, Chunk(coord=np.array([0,0,0], dtype=np.int32), size=size, voxel_handle=handle))
+    world.add_component(chunk_eid, Chunk(
+        coord=np.array([0,0,0], dtype=np.int32), 
+        size=size, 
+        voxel_handle=handle
+    ))
+
     world.add_component(chunk_eid, Transform(
-        position=np.array([0.0, 0.0, 0.0],dtype=np.float32),
+        position=np.array([0.0, 0.0, 100.0],dtype=np.float32),
         rotation=np.array([0.0, 0.0, 0.0], dtype=np.float32),
         scale=np.array([1.0, 1.0, 1.0], dtype=np.float32)
     ))
+
+    world.add_component(chunk_eid, GravityWell(
+        mu=110_000,
+        cx=0.0,
+        cy=0.0,
+        cz=0.0
+    ))
+
+    world.add_component(chunk_eid, Velocity(
+        linear=np.array([20.0, 10.0, 0.0], dtype=np.float32),
+        angular=np.array([60.0, 180.0, 30.0], dtype=np.float32)
+    ))
+    world.add_component(chunk_eid, Acceleration())
+
     world.add_component(chunk_eid, Mesh(mesh_id=-1))
     world.add_tag(chunk_eid, DirtyRemesh) 
+
+    world.add_component(chunk_eid, ModelMatrix(
+        model=np.identity(4, dtype=np.float32),
+        centre=(4.0, 4.0, 4.0)
+    ))
+    world.add_tag(chunk_eid, DirtyRemodel)
 
     chunk_map.set((0,0,0), chunk_eid)
