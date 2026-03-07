@@ -12,6 +12,7 @@ from ecs.resources import ResourceRegistry
 from components.transform import Transform
 from components.velocity import Velocity
 from components.acceleration import Acceleration
+from components.mass import Mass
 from components.camera import Camera
 from components.camera_matrices import CameraMatrices
 from components.model_matrix import ModelMatrix
@@ -28,6 +29,7 @@ from stores.camera_store import CameraStore
 from stores.transform_store import TransformStore
 from stores.velocity_store import VelocityStore
 from stores.acceleration_store import AccelerationStore
+from stores.mass_store import MassStore
 from stores.mesh_store import MeshStore
 from stores.chunk_store import ChunkStore
 from stores.parent_follow_store import ParentFollowStore
@@ -63,6 +65,7 @@ def create_ecs_world(entity_capacity: int = 100_000) -> ECSWorld:
     stores.register(Chunk, ChunkStore(entity_capacity))
     stores.register(ParentFollow, ParentFollowStore(entity_capacity))
     stores.register(PlayerController, PlayerControllerStore(entity_capacity))
+    stores.register(Mass, MassStore(entity_capacity))
 
     stores.register(DirtyMatrices, TagStore(entity_capacity))
     stores.register(DirtyRemesh, TagStore(entity_capacity))
