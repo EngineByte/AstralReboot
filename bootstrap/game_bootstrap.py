@@ -235,7 +235,7 @@ def setup_game_world(world: ECSWorld) -> None:
     def idx(x, y, z): return x + size*(y + size*z)
     rng = np.random.default_rng()
 
-    size = 16
+    size = 8
     handle = voxel_pool.alloc(size=size, fill=0)
 
     block = voxel_pool.block(handle)
@@ -265,7 +265,7 @@ def setup_game_world(world: ECSWorld) -> None:
 
     world.add_component(planet_eid, Acceleration())
     
-    world.add_component(planet_eid, Mass(mass=16.0 * 16.0 * 16.0 * 0.66 * 1000.0))
+    world.add_component(planet_eid, Mass(mass=8.0 * 8.0 * 8.0 * 0.66 * 1000.0))
 
     world.add_component(planet_eid, Mesh(
         mesh_id=-1,
@@ -351,7 +351,7 @@ def setup_game_world(world: ECSWorld) -> None:
     ))
 
     world.add_component(chunk_eid2, Velocity(
-        linear=np.array([-40.0, 10.0, 0.0], dtype=np.float32),
+        linear=np.array([40.0, -10.0, 19.0], dtype=np.float32),
         angular=np.array([60.0, 180.0, 30.0], dtype=np.float32)
     ))
     world.add_component(chunk_eid2, Acceleration())
