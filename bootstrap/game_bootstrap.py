@@ -243,111 +243,57 @@ def setup_game_world(world: ECSWorld) -> None:
     chunk_map = world.resources.get(ChunkMap)
     inputstate = world.resources.get(InputState)
 
-    def idx(x, y, z): return x + size*(y + size*z)
+    def idx(x, y, z ,size): return x + size*(y + size*z)
     rng = np.random.default_rng()
 
-    size = 8
-    handle = voxel_pool.alloc(size=size, fill=0)
+    def random_chunk(size: int) -> int:
+        handle = voxel_pool.alloc(size=size, fill=0)
+        block = voxel_pool.block(handle)
+        for x in range(size):
+            for y in range(size):
+                for z in range(size):
+                    block.data[idx(x, y, z, size)] = 1 if rng.random() > 0.33 else 0
 
-    block = voxel_pool.block(handle)
+        eid = world.create_entity()
+        world.add_component(eid, Chunk(
+            coord=np.array([0, 0, 0], dtype=np.int32),
+            size=size,
+            voxel_handle=handle
+        ))
 
-    for x in range(size):
-        for y in range(size):
-            for z in range(size):
-                block.data[idx(x, y, z)] = 1 if rng.random() > 0.33 else 0
+        world.add_component(eid, Acceleration())
+        
+        world.add_component(eid, Mass(mass=float(size) * float(size) * float(size) * 0.66 * 1000.0))
 
-    planet_eid = world.create_entity()
-    world.add_component(planet_eid, Chunk(
-        coord=np.array([0, 0, 1], dtype=np.int32),
-        size=size,
-        voxel_handle=handle
-    ))
+        world.add_component(eid, Mesh(
+            mesh_id=-1,
 
-    world.add_component(planet_eid, Acceleration())
+        ))
+        world.add_tag(eid, DirtyRemesh) 
+
+        world.add_component(eid, ModelMatrix(
+            model=np.identity(4, dtype=np.float32),
+            centre=(float(size / 2.0), float(size / 2.0), float(size / 2.0))
+        ))
+        world.add_tag(eid, DirtyRemodel)
+        world.add_component(eid, Acceleration())
+
+        chunk_map.set((0,0,0), eid)
+        
+
+        return eid
     
-    world.add_component(planet_eid, Mass(mass=8.0 * 8.0 * 8.0 * 0.66 * 1000.0))
+    size0 = 8
 
-    world.add_component(planet_eid, Mesh(
-        mesh_id=-1,
+    planet_eid = random_chunk(size0)
 
-    ))
-    world.add_tag(planet_eid, DirtyRemesh) 
+    size1 = 8
 
-    world.add_component(planet_eid, ModelMatrix(
-        model=np.identity(4, dtype=np.float32),
-        centre=(4.0, 4.0, 4.0)
-    ))
-    world.add_tag(planet_eid, DirtyRemodel)
-    world.add_component(planet_eid, Acceleration())
+    chunk_eid0 = random_chunk(size1)
 
-    chunk_map.set((0,0,1), planet_eid)
+    size2 = 8
 
-
-    size = 8
-    handle = voxel_pool.alloc(size=size, fill=0)
-
-    block = voxel_pool.block(handle)
-    
-
-    for x in range(size):
-        for y in range(size):
-            for z in range(size):
-                block.data[idx(x, y, z)] = 1 if rng.random() > 0.33 else 0
-
-    chunk_eid = world.create_entity()
-    world.add_component(chunk_eid, Chunk(
-        coord=np.array([0,0,0], dtype=np.int32), 
-        size=size, 
-        voxel_handle=handle
-    ))
-
-    world.add_component(chunk_eid, Acceleration())
-
-    world.add_component(chunk_eid, Mass(mass=8.0 * 8.0 * 8.0 * 0.66 * 1000.0))
-
-    world.add_component(chunk_eid, Mesh(mesh_id=-1))
-    world.add_tag(chunk_eid, DirtyRemesh) 
-
-    world.add_component(chunk_eid, ModelMatrix(
-        model=np.identity(4, dtype=np.float32),
-        centre=(4.0, 4.0, 4.0)
-    ))
-    world.add_tag(chunk_eid, DirtyRemodel)
-
-    chunk_map.set((0,0,0), chunk_eid)
-
-    size = 8
-    handle = voxel_pool.alloc(size=size, fill=0)
-
-    block = voxel_pool.block(handle)
-    
-
-    for x in range(size):
-        for y in range(size):
-            for z in range(size):
-                block.data[idx(x, y, z)] = 1 if rng.random() > 0.33 else 0
-
-    chunk_eid2 = world.create_entity()
-    world.add_component(chunk_eid2, Chunk(
-        coord=np.array([0,2,0], dtype=np.int32), 
-        size=size, 
-        voxel_handle=handle
-    ))
-
-    world.add_component(chunk_eid2, Acceleration())
-
-    world.add_component(chunk_eid2, Mass(mass=8.0 * 8.0 * 8.0 * 0.66 * 1000.0))
-
-    world.add_component(chunk_eid2, Mesh(mesh_id=-1))
-    world.add_tag(chunk_eid2, DirtyRemesh) 
-
-    world.add_component(chunk_eid2, ModelMatrix(
-        model=np.identity(4, dtype=np.float32),
-        centre=(4.0, 4.0, 4.0)
-    ))
-    world.add_tag(chunk_eid2, DirtyRemodel)
-
-    chunk_map.set((0,2,0), chunk_eid2)
+    chunk_eid1 = random_chunk(size2)
     
     world.add_component(planet_eid, Transform(
         position=np.array([0.0, 0.0, 0.0],dtype=np.float32),
@@ -360,24 +306,24 @@ def setup_game_world(world: ECSWorld) -> None:
         angular=np.array([0.0, 50.0, 0.0], dtype=np.float32)
     ))
 
-    world.add_component(chunk_eid, Transform(
+    world.add_component(chunk_eid0, Transform(
         position=np.array([0.0, 0.0, 100.0],dtype=np.float32),
         rotation=np.array([0.0, 0.0, 0.0], dtype=np.float32),
         scale=np.array([1.0, 1.0, 1.0], dtype=np.float32)
     ))
 
-    world.add_component(chunk_eid, Velocity(
+    world.add_component(chunk_eid0, Velocity(
         linear=np.array([-15.0, 10.0, -10.0], dtype=np.float32),
         angular=np.array([60.0, 180.0, 30.0], dtype=np.float32)
     ))
         
-    world.add_component(chunk_eid2, Transform(
+    world.add_component(chunk_eid1, Transform(
         position=np.array([0.0, 50.0, -50.0],dtype=np.float32),
         rotation=np.array([0.0, 0.0, 0.0], dtype=np.float32),
         scale=np.array([1.0, 1.0, 1.0], dtype=np.float32)
     ))
 
-    world.add_component(chunk_eid2, Velocity(
+    world.add_component(chunk_eid1, Velocity(
         linear=np.array([20.0, -10.0, 19.0], dtype=np.float32),
         angular=np.array([60.0, -90.0, 30.0], dtype=np.float32)
     ))
