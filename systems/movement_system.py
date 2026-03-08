@@ -61,13 +61,13 @@ def system_movement(world: 'ECSWorld', dt: float) -> None:
     
 
     system_clear_acceleration(world, dt32)
-    system_gravity(world, dt32)
+    system_gravity(world, half)
 
     system_integrate_acceleration(world, half)
     system_integrate_velocity(world, dt32)
 
     system_clear_acceleration(world, dt32)
-    system_gravity(world, dt32)
+    system_gravity(world, half)
 
     system_integrate_acceleration(world, half)
 

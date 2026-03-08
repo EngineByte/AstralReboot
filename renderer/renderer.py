@@ -8,6 +8,10 @@ import numpy as np
 import numpy.typing as npt
 from pyglet import gl
 
+from resources.sky_settings import SkySettings
+from renderer.skybox import SkyboxRenderer
+from renderer.cubemap import load_cubemap
+
 FloatArray = npt.NDArray[np.float32]
 IndexArray = npt.NDArray[np.uint32]
 Mat4 = npt.NDArray[np.float32]
@@ -82,6 +86,20 @@ class Renderer:
     def __init__(self) -> None:
         self._program = self._create_program(VERT_BYTES, FRAG_BYTES)
         gl.glUseProgram(self._program)
+        
+        self.skybox_renderer = None
+        self.skybox_program = None
+        self.sky = SkySettings(
+            cubemap_faces=(
+                "assets/skybox/nx.png",
+                "assets/skybox/px.png",
+                "assets/skybox/ny.png",
+                "assets/skybox/py.png",
+                "assets/skybox/nz.png", 
+                "assets/skybox/pz.png",             
+            )
+        )
+        self.initialize_skybox()
         self._u_view = gl.glGetUniformLocation(self._program, b'view')
         self._u_proj = gl.glGetUniformLocation(self._program, b'proj')
         self._u_model = gl.glGetUniformLocation(self._program, b'model')
@@ -359,3 +377,17 @@ class Renderer:
         gl.glDeleteBuffers(1, ct.byref(gm.vbo))
         gl.glDeleteBuffers(1, ct.byref(gm.ebo))
 
+    def initialize_skybox(self) -> None:
+        self.skybox_program = SkyboxRenderer._build_skybox_program()
+        cubemap_id = load_cubemap(self.sky.cubemap_faces)
+        self.skybox_renderer = SkyboxRenderer(self.skybox_program, cubemap_id)
+
+    def draw_skybox(self, proj: np.ndarray, view: np.ndarray) -> None:
+        if self.skybox_renderer is None:
+            return
+        
+        self.skybox_renderer.set_camera(view, proj)
+
+        self.skybox_renderer.draw(
+            sun_dir=self.sky.sun_dir
+        )        

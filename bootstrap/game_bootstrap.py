@@ -27,12 +27,14 @@ from systems.parent_follow_system import system_parent_follow
 from systems.player_controller_system import system_player_controller
 from systems.pre_render_system import system_pre_render
 from systems.update_models_system import system_update_model_matrices
+from systems.skybox_render_system import system_skybox_render
 
 
 from resources.voxels.chunk_map import ChunkMap
 from resources.voxels.voxel_pool import VoxelPool
 from resources.input_state import InputState, bind_input
 from resources.gravity_config import GravityConfig
+from resources.sky_settings import SkySettings
 
 from renderer.renderer import Renderer
 from renderer.mesh_pool import MeshPool
@@ -59,7 +61,7 @@ def setup_game_world(world: ECSWorld) -> None:
     world.add_component(player, Acceleration())
 
     world.add_component(player, PlayerController(
-        move_speed=6.0,
+        move_speed=12.0,
         mouse_sens=0.15,
         invert_y=False 
     ))
@@ -186,6 +188,15 @@ def setup_game_world(world: ECSWorld) -> None:
 
     world.scheduler.add_system(
         SystemSpec(
+            func=system_skybox_render,
+            phase='render',
+            order=49,
+            name='skybox_render'
+        )
+    )
+
+    world.scheduler.add_system(
+        SystemSpec(
             func=system_chunk_render,
             phase='render', 
             order=50,
@@ -224,7 +235,7 @@ def setup_game_world(world: ECSWorld) -> None:
     world.resources.add(ChunkMap, ChunkMap())
     world.resources.add(MeshPool, MeshPool())
     world.resources.add(InputState, InputState())
-    world.resources.add(GravityConfig, GravityConfig())
+    world.resources.add(GravityConfig, GravityConfig(G=0.5))
     window = world.resources.get(AstralWindow)
     bind_input(window, world)
 
@@ -252,17 +263,6 @@ def setup_game_world(world: ECSWorld) -> None:
         voxel_handle=handle
     ))
 
-    world.add_component(planet_eid, Transform(
-        position=np.array([0.0, 0.0, 0.0],dtype=np.float32),
-        rotation=np.array([0.0, 0.0, 0.0], dtype=np.float32),
-        scale=np.array([1.0, 1.0, 1.0], dtype=np.float32)
-    ))    
-
-    world.add_component(planet_eid, Velocity(
-        linear=np.array([0.0, 0.0, 0.0], dtype=np.float32),
-        angular=np.array([0.0, 10.0, 0.0], dtype=np.float32)
-    ))
-
     world.add_component(planet_eid, Acceleration())
     
     world.add_component(planet_eid, Mass(mass=8.0 * 8.0 * 8.0 * 0.66 * 1000.0))
@@ -275,7 +275,7 @@ def setup_game_world(world: ECSWorld) -> None:
 
     world.add_component(planet_eid, ModelMatrix(
         model=np.identity(4, dtype=np.float32),
-        centre=(16.0, 16.0, 16.0)
+        centre=(4.0, 4.0, 4.0)
     ))
     world.add_tag(planet_eid, DirtyRemodel)
     world.add_component(planet_eid, Acceleration())
@@ -301,19 +301,9 @@ def setup_game_world(world: ECSWorld) -> None:
         voxel_handle=handle
     ))
 
-    world.add_component(chunk_eid, Transform(
-        position=np.array([0.0, 0.0, 100.0],dtype=np.float32),
-        rotation=np.array([0.0, 0.0, 0.0], dtype=np.float32),
-        scale=np.array([1.0, 1.0, 1.0], dtype=np.float32)
-    ))
-
-    world.add_component(chunk_eid, Velocity(
-        linear=np.array([40.0, 5.0, 0.0], dtype=np.float32),
-        angular=np.array([60.0, 180.0, 30.0], dtype=np.float32)
-    ))
     world.add_component(chunk_eid, Acceleration())
 
-    world.add_component(chunk_eid, Mass(mass=8.0 * 8.0 * 8.0 * 0.66))
+    world.add_component(chunk_eid, Mass(mass=8.0 * 8.0 * 8.0 * 0.66 * 1000.0))
 
     world.add_component(chunk_eid, Mesh(mesh_id=-1))
     world.add_tag(chunk_eid, DirtyRemesh) 
@@ -344,19 +334,9 @@ def setup_game_world(world: ECSWorld) -> None:
         voxel_handle=handle
     ))
 
-    world.add_component(chunk_eid2, Transform(
-        position=np.array([0.0, 50.0, -100.0],dtype=np.float32),
-        rotation=np.array([0.0, 0.0, 0.0], dtype=np.float32),
-        scale=np.array([1.0, 1.0, 1.0], dtype=np.float32)
-    ))
-
-    world.add_component(chunk_eid2, Velocity(
-        linear=np.array([40.0, -10.0, 19.0], dtype=np.float32),
-        angular=np.array([60.0, 180.0, 30.0], dtype=np.float32)
-    ))
     world.add_component(chunk_eid2, Acceleration())
 
-    world.add_component(chunk_eid2, Mass(mass=8.0 * 8.0 * 8.0 * 0.66))
+    world.add_component(chunk_eid2, Mass(mass=8.0 * 8.0 * 8.0 * 0.66 * 1000.0))
 
     world.add_component(chunk_eid2, Mesh(mesh_id=-1))
     world.add_tag(chunk_eid2, DirtyRemesh) 
@@ -368,3 +348,36 @@ def setup_game_world(world: ECSWorld) -> None:
     world.add_tag(chunk_eid2, DirtyRemodel)
 
     chunk_map.set((0,2,0), chunk_eid2)
+    
+    world.add_component(planet_eid, Transform(
+        position=np.array([0.0, 0.0, 0.0],dtype=np.float32),
+        rotation=np.array([0.0, 0.0, 0.0], dtype=np.float32),
+        scale=np.array([1.0, 1.0, 1.0], dtype=np.float32)
+    ))    
+
+    world.add_component(planet_eid, Velocity(
+        linear=np.array([0.0, 0.0, 0.0], dtype=np.float32),
+        angular=np.array([0.0, 50.0, 0.0], dtype=np.float32)
+    ))
+
+    world.add_component(chunk_eid, Transform(
+        position=np.array([0.0, 0.0, 100.0],dtype=np.float32),
+        rotation=np.array([0.0, 0.0, 0.0], dtype=np.float32),
+        scale=np.array([1.0, 1.0, 1.0], dtype=np.float32)
+    ))
+
+    world.add_component(chunk_eid, Velocity(
+        linear=np.array([-15.0, 10.0, -10.0], dtype=np.float32),
+        angular=np.array([60.0, 180.0, 30.0], dtype=np.float32)
+    ))
+        
+    world.add_component(chunk_eid2, Transform(
+        position=np.array([0.0, 50.0, -50.0],dtype=np.float32),
+        rotation=np.array([0.0, 0.0, 0.0], dtype=np.float32),
+        scale=np.array([1.0, 1.0, 1.0], dtype=np.float32)
+    ))
+
+    world.add_component(chunk_eid2, Velocity(
+        linear=np.array([20.0, -10.0, 19.0], dtype=np.float32),
+        angular=np.array([60.0, -90.0, 30.0], dtype=np.float32)
+    ))
