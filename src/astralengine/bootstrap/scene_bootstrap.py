@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 
-from ecs.world import ECSWorld
-from ecs.system_spec import SystemSpec
+from astralengine.ecs.world import ECSWorld
+from astralengine.ecs.system_spec import SystemSpec
 
 from astralengine.components.transform import Transform
 from astralengine.components.velocity import Velocity
@@ -32,18 +32,21 @@ from astralengine.systems.render.skybox_render_system import system_skybox_rende
 
 from astralengine.voxels.chunk_map import ChunkMap
 from astralengine.voxels.voxel_pool import VoxelPool
-from src.astralengine.resources.input_state import InputState, bind_input
-from resources.gravity_config import GravityConfig
-from resources.sky_settings import SkySettings
+from astralengine.resources.input_state import InputState, bind_input
+from astralengine.resources.gravity_config import GravityConfig
+from astralengine.resources.sky_settings import SkySettings
 
-from renderer.renderer import Renderer
-from renderer.mesh_pool import MeshPool
-from app.window import AstralWindow
+from astralengine.renderer.renderer import Renderer
+from astralengine.renderer.mesh_pool import MeshPool
+from astralengine.app.window import AstralWindow
 
 from astralengine.game.recipes.gravity_sandbox import build_gravity_sandbox_scene
 
 
 def install_start_scene(world: ECSWorld) -> None:
+    '''
+    Install the initial scene.
+    '''
     build_gravity_sandbox_scene(world)
 
 def setup_game_world(world: ECSWorld) -> None:

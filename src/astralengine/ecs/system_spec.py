@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Callable, Optional, Sequence, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ecs.world import ECSWorld
+    from astralengine.ecs.world import ECSWorld
     
 SystemFn = Callable[['ECSWorld', float], None]
 

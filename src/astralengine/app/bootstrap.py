@@ -5,7 +5,7 @@ from astralengine.bootstrap.ecs_bootstrap import create_ecs_world
 from astralengine.bootstrap.resource_bootstrap import install_core_resources
 from astralengine.bootstrap.render_bootstrap import install_render_pipeline
 from astralengine.bootstrap.systems_bootstrap import install_core_systems
-from astralengine.bootstrap.scene_bootstrap import install_demo_scene
+from astralengine.bootstrap.scene_bootstrap import install_start_scene
 
 
 @dataclass
@@ -26,7 +26,7 @@ def create_application() -> Application:
     install_core_resources(world)
     install_render_pipeline(world)
     install_core_systems(world)
-    install_demo_scene(world)
+    install_start_scene(world)
     
     window = AstralWindow(world)
     
