@@ -44,9 +44,9 @@ def system_submit_camera(world: ECSWorld, dt: float) -> None:
             chosen_i_mats = i_mats
             i_tr = tr_store.dense_index(eid)
             chosen_pos = (
-                float(tr_store.x[i_tr]),
-                float(tr_store.y[i_tr]),
-                float(tr_store.z[i_tr]),
+                float(tr_store.px[i_tr]),
+                float(tr_store.py[i_tr]),
+                float(tr_store.pz[i_tr]),
             )
             break
 

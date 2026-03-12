@@ -4,10 +4,6 @@ from pyglet import gl
 
 
 class GLDevice:
-    """
-    Thin helper around common global GL state transitions.
-    """
-
     def set_viewport(self, width: int, height: int) -> None:
         gl.glViewport(0, 0, int(width), int(height))
 
@@ -20,6 +16,9 @@ class GLDevice:
             gl.glEnable(gl.GL_DEPTH_TEST)
         else:
             gl.glDisable(gl.GL_DEPTH_TEST)
+
+    def set_depth_func(self, func: int) -> None:
+        gl.glDepthFunc(func)
 
     def set_cull_faces(self, enabled: bool) -> None:
         if enabled:

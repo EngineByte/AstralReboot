@@ -37,7 +37,7 @@ def build_gravity_sandbox_scene(world: ECSWorld) -> None:
             size=16,
             position=(0.0, 0.0, 0.0),
             mass=5000.0,
-            gravity_strength=1.0,
+            gravity_strength=1000.0,
             fill_value=1,
         ),
     )
@@ -50,7 +50,7 @@ def build_gravity_sandbox_scene(world: ECSWorld) -> None:
             position=(100.0, 0.0, 0.0),
             linvel=(0.0, 0.0, 2.0),
             mass=2500.0,
-            gravity_strength=1.0,
+            gravity_strength=1000.0,
             fill_value=1,
         ),
     )
@@ -64,7 +64,7 @@ def build_gravity_sandbox_scene(world: ECSWorld) -> None:
             linvel=(0.0, 0.0, -1.5),
             angvel=(0.0, 10.0, 0.0),
             mass=4000.0,
-            gravity_strength=1.0,
+            gravity_strength=1000.0,
             fill_value=1,
         ),
     )

@@ -66,9 +66,9 @@ class TransformStore(SoAStore):
         self.sz[dense_i] = component.scale[2]
 
     def _on_move_dense(self, dst_i: int, src_i: int) -> None:
-        self.px[dst_i] = self.x[src_i]
-        self.py[dst_i] = self.y[src_i]
-        self.pz[dst_i] = self.z[src_i]
+        self.px[dst_i] = self.px[src_i]
+        self.py[dst_i] = self.py[src_i]
+        self.pz[dst_i] = self.pz[src_i]
 
         self.pitch_deg[dst_i] = self.pitch_deg[src_i]
         self.yaw_deg[dst_i] = self.yaw_deg[src_i]

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import numpy as np
+from pyglet import gl
 
 from astralengine.ecs.world import ECSWorld
 from astralengine.resources.render_settings import RenderSettings
@@ -37,6 +38,7 @@ class SkyboxPass:
 
         device = GLDevice()
         device.set_depth_mask(False)
+        device.set_depth_func(gl.GL_LEQUAL)
 
         program.use()
 
@@ -53,4 +55,5 @@ class SkyboxPass:
 
         self.geometry.draw()
 
+        device.set_depth_func(gl.GL_LESS)
         device.set_depth_mask(True)

@@ -13,6 +13,7 @@ from astralengine.renderer.submit.upload_mesh_system import system_upload_chunk_
 from astralengine.systems.camera.camera_matrices_system import system_update_camera_matrices
 from astralengine.systems.camera.parent_follow_system import system_parent_follow
 from astralengine.systems.physics.gravity_system import system_gravity
+from astralengine.systems.physics.integration_system import system_integration
 from astralengine.systems.physics.movement_system import system_movement
 from astralengine.systems.player.player_controller_system import system_player_controller
 from astralengine.systems.render.update_model_matrices_system import system_update_model_matrices
@@ -55,6 +56,16 @@ def install_core_systems(world: ECSWorld) -> None:
             name="gravity",
         )
     )
+
+    scheduler.add_system(
+        SystemSpec(
+            func=system_integration,
+            phase='update',
+            order=35,
+            name='integration'
+        )
+    )
+
     scheduler.add_system(
         SystemSpec(
             func=system_movement,

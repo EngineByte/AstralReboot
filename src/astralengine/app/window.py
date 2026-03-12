@@ -33,10 +33,19 @@ class AstralWindow(pyglet.window.Window):
         pyglet.app.run()
 
     def update(self, dt: float) -> None:
-        self.world.run_frame(dt)
+        self.world.dt_seconds = float(dt)
+
+        # run non-render phases here
+        for phase in ("input", "update", "post_update", "render_submit"):
+            self.world.scheduler.run_phase(phase, self.world)
+
+        if self.world.command_buffer is not None:
+            self.world.command_buffer.flush()
+
+        
 
     def on_draw(self) -> None:
-        pass
+        self.world.scheduler.run_phase("render", self.world)
 
     def on_resize(self, width: int, height: int):
         settings = self.world.resources.get(RenderSettings)
