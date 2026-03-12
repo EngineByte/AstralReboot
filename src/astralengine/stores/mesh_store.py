@@ -4,8 +4,8 @@ from typing import Any
 import numpy as np
 import numpy.typing as npt
 
-from ecs.soa_store import SoAStore
-from components.mesh import Mesh
+from astralengine.ecs.soa_store import SoAStore
+from astralengine.components.mesh import Mesh
 
 
 class MeshStore(SoAStore):

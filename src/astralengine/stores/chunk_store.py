@@ -4,8 +4,8 @@ from typing import Any
 import numpy as np
 import numpy.typing as npt
 
-from ecs.soa_store import SoAStore
-from components.chunk import Chunk
+from astralengine.ecs.soa_store import SoAStore
+from astralengine.components.chunk import Chunk
 
 
 class ChunkStore(SoAStore):
@@ -40,7 +40,7 @@ class ChunkStore(SoAStore):
             raise TypeError(f'ChunkStore expected Chunk, got {type(component)}')
 
         c = component.coord
-        if c.shape != (3,):
+        if len(c) != 3:
             raise ValueError('Chunk.coord must be shape (3,) int32 array')
 
         self.cx[dense_i] = np.int32(c[0])

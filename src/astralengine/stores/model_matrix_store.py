@@ -1,61 +1,53 @@
 from __future__ import annotations
 
-from typing import Any
-
 import numpy as np
-import numpy.typing as npt
 
-from ecs.soa_store import SoAStore
-from components.model_matrix import ModelMatrix
+from astralengine.components.model_matrix import ModelMatrix
+from astralengine.ecs.soa_store import SoAStore
 
 
 class ModelMatrixStore(SoAStore):
-    def __init__(self, entity_capacity: int, initial_dense_capacity: int = 256) -> None:
-        super().__init__(entity_capacity=entity_capacity, initial_dense_capacity=initial_dense_capacity)
+    def __init__(self, entity_capacity: int, initial_dense_capacity: int = 1024) -> None:
+        super().__init__(entity_capacity, initial_dense_capacity)
 
-        cap = int(initial_dense_capacity)
-        if cap <= 0:
-            cap = 1
+        cap = self._dense_eids.shape[0]
 
-        self.model: npt.NDArray[np.float32] = np.repeat(
-            np.identity(4, dtype=np.float32)[None, :, :], cap, axis=0
-        )
-        self.centre: npt.NDArray[np.float32] = np.repeat(
-            np.identity(4, dtype=np.float32)[None, :, :], cap, axis=0
-        )
+        self.model = np.repeat(np.eye(4, dtype=np.float32)[None, :, :], cap, axis=0)
+
+        self.cx = np.zeros(cap, dtype=np.float32)
+        self.cy = np.zeros(cap, dtype=np.float32)
+        self.cz = np.zeros(cap, dtype=np.float32)
 
     def _ensure_dense_capacity(self, new_dense_capacity: int) -> None:
-        cur = int(self.model.shape[0])
-        if new_dense_capacity <= cur:
-            return
+        old_cap = self._dense_eids.shape[0]
         super()._ensure_dense_capacity(new_dense_capacity)
+        new_cap = self._dense_eids.shape[0]
 
-        new_model = np.repeat(np.identity(4, dtype=np.float32)[None, :, :], new_dense_capacity, axis=0)
-        new_model[:cur] = self.model
+        if new_cap == old_cap:
+            return
 
-        new_centre = np.repeat(np.identity(4, dtype=np.float32)[None, :, :], new_dense_capacity, axis=0)
-        new_centre[:cur] = self.centre
-        
-        self.model = new_model
-        self.centre = new_centre
+        old_model = self.model
+        self.model = np.repeat(np.eye(4, dtype=np.float32)[None, :, :], new_cap, axis=0)
+        self.model[:old_cap] = old_model[:old_cap]
 
-    def _on_add_dense(self, dense_i: int, component: Any) -> None:
-        if not isinstance(component, ModelMatrix):
-            raise TypeError(f'ModelMatrixStore expected ModelMatrix, got {type(component)}')
+        self.cx = np.resize(self.cx, new_cap).astype(np.float32, copy=False)
+        self.cy = np.resize(self.cy, new_cap).astype(np.float32, copy=False)
+        self.cz = np.resize(self.cz, new_cap).astype(np.float32, copy=False)
 
-        if component.model.shape != (4, 4):
-            raise ValueError('ModelMatrix.model must be shape (4,4) float32 matrices')
-        c = component.centre
-        centre = np.identity(4, dtype=np.float32)
-        centre[:3, 3] = (-c[0], -c[1], -c[2])
-
-        self.model[dense_i] = component.model.astype(np.float32, copy=False)
-        self.centre[dense_i] = centre.astype(np.float32, copy=False)
+    def _on_add_dense(self, dense_i: int, component: ModelMatrix) -> None:
+        self.model[dense_i] = component.model
+        self.cx[dense_i] = component.centre[0]
+        self.cy[dense_i] = component.centre[1]
+        self.cz[dense_i] = component.centre[2]
 
     def _on_move_dense(self, dst_i: int, src_i: int) -> None:
         self.model[dst_i] = self.model[src_i]
-        self.centre[dst_i] = self.centre[src_i]
+        self.cx[dst_i] = self.cx[src_i]
+        self.cy[dst_i] = self.cy[src_i]
+        self.cz[dst_i] = self.cz[src_i]
 
     def _on_clear_dense(self, dense_i: int) -> None:
-        self.model[dense_i] = np.identity(4, dtype=np.float32)
-        self.centre[dense_i] = np.identity(4, dtype=np.float32)
+        self.model[dense_i] = np.eye(4, dtype=np.float32)
+        self.cx[dense_i] = 0.0
+        self.cy[dense_i] = 0.0
+        self.cz[dense_i] = 0.0

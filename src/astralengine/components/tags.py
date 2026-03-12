@@ -11,3 +11,7 @@ class DirtyRemesh:
 
 class DirtyRemodel:
     pass
+
+
+class ActiveCamera:
+    pass

@@ -1,150 +1,192 @@
-# ecs/world.py
-
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any, Callable, Dict, Iterable, Iterator, Optional, Sequence, Tuple, Type, TypeVar
+from typing import Any
 
-from ecs.scheduler import SystemScheduler
-from ecs.command_buffer import CommandBuffer
-from ecs.entity_allocator import EntityAllocator
-from ecs.store_registry import StoreRegistry
-from ecs.event_bus import EventBus
-from ecs.resources import ResourceRegistry
-
-T = TypeVar('T')
+from astralengine.ecs.command_buffer import CommandBuffer
+from astralengine.ecs.entity_allocator import EntityAllocator, EntityId
+from astralengine.ecs.resources import ResourceRegistry
+from astralengine.ecs.scheduler import SystemScheduler
+from astralengine.ecs.store_registry import StoreRegistry
+from astralengine.ecs.tag_store import TagStore
 
 
 class ECSWorld:
+    """
+    Central ECS façade.
+
+    Owns:
+    - entity allocation
+    - component stores
+    - tag stores
+    - global resources
+    - scheduler
+    - optional command buffer
+    """
+
     def __init__(
         self,
-        allocator: EntityAllocator,
-        stores: StoreRegistry,
-        scheduler: SystemScheduler,
-        command_buffer: CommandBuffer,
-        event_bus: EventBus,
-        resources: ResourceRegistry,
+        entity_capacity: int,
+        *,
+        enable_command_buffer: bool = True,
     ) -> None:
-        
-        self.allocator = allocator
-        self.stores = stores
-        self.scheduler = scheduler
-        self.command_buffer = command_buffer
-        self.event_bus = event_bus
-        self.resources = resources
+        self.entity_capacity = int(entity_capacity)
 
-        self.frame_index: int = 0
-        self.time_seconds: float = 0.0
+        self.entities = EntityAllocator(entity_capacity=self.entity_capacity)
+        self._stores = StoreRegistry()
+        self._tag_stores: dict[type, TagStore] = {}
+
+        self.resources = ResourceRegistry()
+        self.scheduler = SystemScheduler()
+
+        self.command_buffer: CommandBuffer | None = (
+            CommandBuffer(self) if enable_command_buffer else None
+        )
+
         self.dt_seconds: float = 0.0
 
-    def create_entity(self) -> int:
-        eid = self.allocator.create()
-        return eid
+    # ------------------------------------------------------------------
+    # Entity lifecycle
+    # ------------------------------------------------------------------
 
-    def destroy_entity(self, eid: int) -> None:
-        self._require_alive(eid)
-        self.stores.remove_all_components(eid)
-        self.allocator.destroy(eid)
+    def create_entity(self) -> EntityId:
+        return self.entities.create()
 
-    def defer_destroy_entity(self, eid: int) -> None:
-        self._require_alive(eid)
-        self.command_buffer.destroy_entity(eid)
+    def destroy_entity(self, eid: EntityId) -> None:
+        for store in self._stores.values():
+            store.remove(eid)
 
-    def is_alive(self, eid: int) -> bool:
-        return self.allocator.is_alive(eid)
+        for tag_store in self._tag_stores.values():
+            tag_store.remove(eid)
 
-    def _require_alive(self, eid: int) -> None:
-        if not self.allocator.is_alive(eid):
-            raise ValueError(f'Entity {eid} is not alive')
+        self.entities.destroy(eid)
 
-    def register_store(self, component_type: Type[T], store: Any) -> None:
-        self.stores.register(component_type, store)
+    def entity_exists(self, eid: EntityId) -> bool:
+        return self.entities.is_alive(eid)
 
-    def store(self, component_type: Type[T]) -> Any:
-        return self.stores.get(component_type)
+    # ------------------------------------------------------------------
+    # Component stores
+    # ------------------------------------------------------------------
 
-    def add_component(self, eid: int, component: Any) -> None:
-        self._require_alive(eid)
-        self.stores.add_component(eid, component)
+    def register_store(self, component_type: type, store: Any) -> None:
+        self._stores.register(component_type, store)
 
-    def defer_add_component(self, eid: int, component: Any) -> None:
-        self._require_alive(eid)
-        self.command_buffer.add_component(eid, component)
+    def has_store(self, component_type: type) -> bool:
+        return component_type in self._stores._component_stores.keys()
 
-    def remove_component(self, eid: int, component_type: Type[T]) -> None:
-        self._require_alive(eid)
-        self.stores.remove_component(eid, component_type)
+    def store(self, component_type: type) -> Any:
+        return self._stores.get(component_type)
 
-    def defer_remove_component(self, eid: int, component_type: Type[T]) -> None:
-        self._require_alive(eid)
-        self.command_buffer.remove_component(eid, component_type)
+    def store_by_type_name(self, type_name: str) -> Any:
+        for component_type, store in self._stores.items():
+            if getattr(component_type, "__name__", "") == type_name:
+                return store
+        raise KeyError(f"No registered component store named '{type_name}'")
 
-    def has_component(self, eid: int, component_type: Type[T]) -> bool:
-        return self.stores.has_component(eid, component_type)
+    def add_component(self, eid: EntityId, component: Any) -> None:
+        component_type = type(component)
+        self.store(component_type).add(eid, component)
 
-    def get_component(self, eid: int, component_type: Type[T]) -> Any:
-        self._require_alive(eid)
-        return self.stores.get_component(eid, component_type)
+    def remove_component(self, eid: EntityId, component_type: type) -> None:
+        self.store(component_type).remove(eid)
 
-    def add_tag(self, eid: int, tag_type: Type[Any]) -> None:
-        self._require_alive(eid)
-        self.stores.add_tag(eid, tag_type)
+    def has_component(self, eid: EntityId, component_type: type) -> bool:
+        return self.store(component_type).has(eid)
 
-    def defer_add_tag(self, eid: int, tag_type: Type[Any]) -> None:
-        self._require_alive(eid)
-        self.command_buffer.add_tag(eid, tag_type)
+    # ------------------------------------------------------------------
+    # Tag stores
+    # ------------------------------------------------------------------
 
-    def remove_tag(self, eid: int, tag_type: Type[Any]) -> None:
-        self._require_alive(eid)
-        self.stores.remove_tag(eid, tag_type)
+    def register_tag_store(self, tag_type: type) -> None:
+        self._tag_stores[tag_type] = TagStore(entity_capacity=self.entity_capacity)
 
-    def defer_remove_tag(self, eid: int, tag_type: Type[Any]) -> None:
-        self._require_alive(eid)
-        self.command_buffer.remove_tag(eid, tag_type)
+    def has_tag_store(self, tag_type: type) -> bool:
+        return tag_type in self._tag_stores
 
-    def has_tag(self, eid: int, tag_type: Type[Any]) -> bool:
-        return self.stores.has_tag(eid, tag_type)
+    def tag_store(self, tag_type: type) -> TagStore:
+        try:
+            return self._tag_stores[tag_type]
+        except KeyError as exc:
+            raise KeyError(f"No registered tag store for {tag_type}") from exc
 
-    def query(self, include: Sequence[Type[Any]]) -> Iterator[Tuple[int, Tuple[Any, ...]]]:
-        return self.stores.query(include)
+    def add_tag(self, eid: EntityId, tag_type: type) -> None:
+        self.tag_store(tag_type).add(eid)
 
-    def emit(self, event: Any) -> None:
-        self.event_bus.emit(event)
+    def remove_tag(self, eid: EntityId, tag_type: type) -> None:
+        self.tag_store(tag_type).remove(eid)
 
-    def on(self, event_type: Type[Any], handler: Callable[[Any], None]) -> None:
-        self.event_bus.on(event_type, handler)
+    def has_tag(self, eid: EntityId, tag_type: type) -> bool:
+        return self.tag_store(tag_type).has(eid)
 
-    def update(self, dt: float) -> None:
+    # ------------------------------------------------------------------
+    # Bulk helpers
+    # ------------------------------------------------------------------
+
+    def remove_all_components(self, eid: EntityId) -> None:
+        for store in self._stores.values():
+            store.remove(eid)
+
+    def remove_all_tags(self, eid: EntityId) -> None:
+        for tag_store in self._tag_stores.values():
+            tag_store.remove(eid)
+
+    # ------------------------------------------------------------------
+    # Frame/update
+    # ------------------------------------------------------------------
+
+    def run_frame(self, dt: float) -> None:
         self.dt_seconds = float(dt)
-        self.time_seconds += self.dt_seconds
-        self.frame_index += 1
+        self.scheduler.run(self)
 
-        self.scheduler.run_phase('update', self)
-        self.command_buffer.flush(self)
+        if self.command_buffer is not None:
+            self.command_buffer.flush()
 
-        self.scheduler.run_phase('late_update', self)
-        self.command_buffer.flush(self)
+    # ------------------------------------------------------------------
+    # Diagnostics
+    # ------------------------------------------------------------------
 
-        self.event_bus.flush()
-
-    def render(self) -> None:
-        self.scheduler.run_phase('pre_render', self)
-        self.command_buffer.flush(self)
-        
-        self.scheduler.run_phase('render', self)
-        self.command_buffer.flush(self)        
-
-        self.event_bus.flush()
-        
-    def register_tag_store(self, tag_type: Type[T]) -> None:
-        pass
-        
-
-    def stats(self) -> Dict[str, Any]:
+    def stats(self) -> dict[str, Any]:
         return {
-            'frame': self.frame_index,
-            'time': self.time_seconds,
-            'dt': self.dt_seconds,
-            'entities_alive': self.allocator.alive_count(),
-            'stores': self.stores.stats(),
+            "entity_capacity": self.entity_capacity,
+            "component_stores": {
+                getattr(component_type, "__name__", repr(component_type)): store.stats()
+                for component_type, store in self._stores.items()
+            },
+            "tag_stores": {
+                getattr(tag_type, "__name__", repr(tag_type)): tag_store.stats()
+                for tag_type, tag_store in self._tag_stores.items()
+            },
         }
+    
+    # ------------------------------------------------------------------
+    # Deferred operations (CommandBuffer helpers)
+    # ------------------------------------------------------------------
+
+    def defer_add_component(self, eid: EntityId, component: Any) -> None:
+        if self.command_buffer is None:
+            self.add_component(eid, component)
+        else:
+            self.command_buffer.add_component(eid, component)
+
+    def defer_remove_component(self, eid: EntityId, component_type: type) -> None:
+        if self.command_buffer is None:
+            self.remove_component(eid, component_type)
+        else:
+            self.command_buffer.remove_component(eid, component_type)
+
+    def defer_add_tag(self, eid: EntityId, tag_type: type) -> None:
+        if self.command_buffer is None:
+            self.add_tag(eid, tag_type)
+        else:
+            self.command_buffer.add_tag(eid, tag_type)
+
+    def defer_remove_tag(self, eid: EntityId, tag_type: type) -> None:
+        if self.command_buffer is None:
+            self.remove_tag(eid, tag_type)
+        else:
+            self.command_buffer.remove_tag(eid, tag_type)
+
+    def defer_destroy_entity(self, eid: EntityId) -> None:
+        if self.command_buffer is None:
+            self.destroy_entity(eid)
+        else:
+            self.command_buffer.destroy_entity(eid)    

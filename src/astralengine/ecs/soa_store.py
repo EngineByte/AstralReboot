@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any, Dict, Generic, Iterable, Iterator, Optional, Tuple, Type, TypeVar
+from typing import Any, Dict, Iterable, TypeVar
 
 import numpy as np
 import numpy.typing as npt
 
-from ecs.entity_allocator import EntityId, Index, entity_index
-
+from astralengine.ecs.entity_allocator import EntityId, entity_index
 
 T = TypeVar('T')
 

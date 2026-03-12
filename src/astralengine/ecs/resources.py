@@ -1,35 +1,104 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Type, TypeVar
+from typing import Any, TypeVar
 
-T = TypeVar('T')
+
+T = TypeVar("T")
 
 
 class ResourceRegistry:
+    """
+    Registry for singleton-style global resources.
+
+    Resources are stored by concrete type. Typical examples:
+    - InputState
+    - RenderSettings
+    - SkySettings
+    - AssetManager
+    - Renderer
+    - MeshPool
+
+    Example:
+        registry.add(RenderSettings())
+        settings = registry.get(RenderSettings)
+    """
+
     def __init__(self) -> None:
-        self._resources: Dict[Type[Any], Any] = {}
+        self._resources: dict[type, Any] = {}
 
-    def add(self, typ: Type[T], value: T) -> None:
-        self._resources[typ] = value
+    def add(self, resource: Any) -> None:
+        """
+        Register or replace a resource by its concrete type.
+        """
+        self._resources[type(resource)] = resource
 
-    def get(self, typ: Type[T]) -> T:
+    def set(self, resource: Any) -> None:
+        """
+        Alias for add().
+        """
+        self.add(resource)
+
+    def get(self, resource_type: type[T]) -> T:
+        """
+        Retrieve a resource by type.
+
+        Raises:
+            KeyError: if the resource type is not registered
+        """
         try:
-            return self._resources[typ]
-        except KeyError as e:
-            raise KeyError(f'Resource not found: {typ}') from e
+            return self._resources[resource_type]
+        except KeyError as exc:
+            raise KeyError(
+                f"Resource not found: {getattr(resource_type, '__name__', resource_type)}"
+            ) from exc
 
-    def try_get(self, typ: Type[T]) -> Optional[T]:
-        v = self._resources.get(typ)
-        return v
-    
-    def remove(self, typ: Type[Any]) -> None:
-        self._resources.pop(typ, None)
+    def try_get(self, resource_type: type[T]) -> T | None:
+        """
+        Retrieve a resource by type, or None if absent.
+        """
+        return self._resources.get(resource_type)
 
-    def has(self, typ: Type[Any]) -> bool:
-        return typ in self._resources
+    def remove(self, resource_type: type) -> None:
+        """
+        Remove a resource by type.
+
+        Raises:
+            KeyError: if the resource type is not registered
+        """
+        del self._resources[resource_type]
+
+    def has(self, resource_type: type) -> bool:
+        """
+        Return True if the resource type is registered.
+        """
+        return resource_type in self._resources
 
     def clear(self) -> None:
+        """
+        Remove all registered resources.
+        """
         self._resources.clear()
 
-    def stats(self) -> Dict[str, Any]:
-        return {'resources': [t.__name__ for t in self._resources.keys()]}
+    def types(self) -> tuple[type, ...]:
+        return tuple(self._resources.keys())
+
+    def items(self) -> tuple[tuple[type, Any], ...]:
+        return tuple(self._resources.items())
+
+    def values(self) -> tuple[Any, ...]:
+        return tuple(self._resources.values())
+
+    def __contains__(self, resource_type: object) -> bool:
+        return isinstance(resource_type, type) and resource_type in self._resources
+
+    def __len__(self) -> int:
+        return len(self._resources)
+
+    def stats(self) -> dict[str, Any]:
+        return {
+            "count": len(self._resources),
+            "types": [
+                getattr(resource_type, "__name__", repr(resource_type))
+                for resource_type in self._resources
+            ],
+        }

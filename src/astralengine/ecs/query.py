@@ -1,100 +1,105 @@
 from __future__ import annotations
 
+from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Any, Iterable, Iterator, List, Sequence, Tuple, Type, TYPE_CHECKING
+from typing import Any
 
-from ecs.entity_allocator import EntityId
-from ecs.tag_store import TagStore
+from astralengine.ecs.entity_allocator import EntityId
 
-if TYPE_CHECKING:
-    from ecs.world import ECSWorld
 
-@dataclass(slots=True, frozen=True)
+@dataclass(frozen=True, slots=True)
 class QuerySpec:
-    include: Tuple[Type[Any], ...]
+    component_types: tuple[type, ...]
+    tag_types: tuple[type, ...]
 
 
-class Query:
-    def __init__(self, world: 'ECSWorld', include: Sequence[Type[Any]]) -> None:
-        if not include:
-            raise ValueError('Query(include=...) must contain at least one type')
+def _split_query_types(world: Any, query_types: tuple[type, ...]) -> QuerySpec:
+    """
+    Split requested query types into component-backed types and tag-backed types.
+    """
+    component_types: list[type] = []
+    tag_types: list[type] = []
 
-        self._world = world
-        self._spec = QuerySpec(include=tuple(include))
+    for typ in query_types:
+        if world.has_store(typ):
+            component_types.append(typ)
+        elif world.has_tag_store(typ):
+            tag_types.append(typ)
+        else:
+            raise KeyError(
+                f"Query type is neither a registered component store nor tag store: {typ}"
+            )
 
-        comp_types: List[Type[Any]] = []
-        tag_types: List[Type[Any]] = []
-        comp_stores: List[Any] = []
-        tag_stores: List[TagStore] = []
+    return QuerySpec(
+        component_types=tuple(component_types),
+        tag_types=tuple(tag_types),
+    )
 
-        for t in self._spec.include:
-            s = world.stores.get(t)  
-            if isinstance(s, TagStore):
-                tag_types.append(t)
-                tag_stores.append(s)
-            else:
-                comp_types.append(t)
-                comp_stores.append(s)
 
-        self._comp_types = tuple(comp_types)
-        self._tag_types = tuple(tag_types)
-        self._comp_stores = tuple(comp_stores)
-        self._tag_stores = tuple(tag_stores)
+class Query(Iterator[tuple[Any, ...]]):
+    """
+    Iterate entities matching a component/tag query.
 
-        drive_store: Any = None
-        drive_dense_eids: Any = None
-        drive_size: int = 0
+    Yield format:
+        (eid, dense_i_component0, dense_i_component1, ...)
 
-        candidates: List[Tuple[int, Any]] = []
-        for s in self._comp_stores:
-            candidates.append((int(s.dense_size()), s))
-        for s in self._tag_stores:
-            candidates.append((int(s.dense_size()), s))
+    Important:
+    - only component-backed types contribute dense indices
+    - tag types are membership filters only
+    """
 
-        candidates.sort(key=lambda x: x[0])
-        drive_size, drive_store = candidates[0]
-        drive_dense_eids = drive_store.dense_eids().copy()
+    def __init__(self, world: Any, query_types: tuple[type, ...]) -> None:
+        self.world = world
+        self.query_types = tuple(query_types)
 
-        self._drive_store = drive_store
-        self._drive_eids = drive_dense_eids
+        spec = _split_query_types(world, self.query_types)
+        self.component_types = spec.component_types
+        self.tag_types = spec.tag_types
 
-    def __iter__(self) -> Iterator[Tuple[EntityId, ...]]:
-        comp_stores = self._comp_stores
-        tag_stores = self._tag_stores
+        if not self.component_types:
+            raise ValueError(
+                "Query requires at least one component-backed type as a driving store."
+            )
 
-        for raw in self._drive_eids:
-            eid = EntityId(raw)
+        self.component_stores = [world.store(t) for t in self.component_types]
+        self.tag_stores = [world.tag_store(t) for t in self.tag_types]
 
-            ok = True
-            for s in comp_stores:
-                if not s.has(eid):
-                    ok = False
+        # Drive iteration from the smallest component store for efficiency
+        self._driver_store = min(self.component_stores, key=lambda s: s.dense_size())
+        self._driver_eids = self._driver_store.dense_eids()
+        self._cursor = 0
+
+    def __iter__(self) -> "Query":
+        return self
+
+    def __next__(self) -> tuple[Any, ...]:
+        while self._cursor < len(self._driver_eids):
+            eid = EntityId(self._driver_eids[self._cursor])
+            self._cursor += 1
+
+            # Check all component stores
+            dense_indices: list[int] = []
+            component_ok = True
+
+            for store in self.component_stores:
+                if not store.has(eid):
+                    component_ok = False
                     break
-            if not ok:
+                dense_indices.append(store.dense_index(eid))
+
+            if not component_ok:
                 continue
 
-            for ts in tag_stores:
-                if not ts.has(eid):
-                    ok = False
+            # Check all tag stores
+            tag_ok = True
+            for tag_store in self.tag_stores:
+                if not tag_store.has(eid):
+                    tag_ok = False
                     break
-            if not ok:
+
+            if not tag_ok:
                 continue
 
-            idxs = [s.dense_index(eid) for s in comp_stores]
-            yield (eid, *idxs)
+            return (eid, *dense_indices)
 
-    @property
-    def component_types(self) -> Tuple[Type[Any], ...]:
-        return self._comp_types
-
-    @property
-    def tag_types(self) -> Tuple[Type[Any], ...]:
-        return self._tag_types
-
-    @property
-    def component_stores(self) -> Tuple[Any, ...]:
-        return self._comp_stores
-
-    @property
-    def tag_stores(self) -> Tuple[TagStore, ...]:
-        return self._tag_stores
+        raise StopIteration

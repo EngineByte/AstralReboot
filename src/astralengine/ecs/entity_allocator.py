@@ -25,11 +25,11 @@ def make_entity_id(index: Index, generation: Generation) -> EntityId:
 
 
 class EntityAllocator:
-    def __init__(self, capacity: int) -> None:
-        if capacity <= 0:
+    def __init__(self, entity_capacity: int) -> None:
+        if entity_capacity <= 0:
             raise ValueError('capacity must be > 0')
 
-        self._capacity: int = int(capacity)
+        self._capacity: int = int(entity_capacity)
 
         self._generations: npt.NDArray[np.uint32] = np.zeros(self._capacity, dtype=np.uint32)
         self._alive: npt.NDArray[np.bool_] = np.zeros(self._capacity, dtype=np.bool_)

@@ -2,12 +2,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 import numpy as np
 
-from ecs.query import Query
-from components.transform import Transform
-from components.mass import Mass
-from components.acceleration import Acceleration
+from astralengine.ecs.query import Query
+from astralengine.components.transform import Transform
+from astralengine.components.mass import Mass
+from astralengine.components.acceleration import Acceleration
 
-from resources.gravity_config import GravityConfig
+from astralengine.resources.gravity_config import GravityConfig
 
 if TYPE_CHECKING:
     from ecs.world import ECSWorld

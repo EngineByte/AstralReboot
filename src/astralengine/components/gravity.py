@@ -1,9 +1,26 @@
+# src/astralengine/components/gravity.py
+
 from __future__ import annotations
+
 from dataclasses import dataclass
 
-@dataclass(frozen=True, slots=True)
+
+@dataclass(slots=True)
 class GravityWell:
-    mu: float = 1.0
-    cx: float = 0.0
-    cy: float = 0.0
-    cz: float = 0.0
+    """
+    Marks an entity as a gravitational source.
+
+    mu:
+        Gravitational parameter (G * mass).
+        Using mu avoids repeatedly multiplying by G.
+
+    softening:
+        Prevents singularities when objects get extremely close.
+
+    enabled:
+        Allows temporary disabling without removing the component.
+    """
+
+    mu: float
+    softening: float = 0.0
+    enabled: bool = True

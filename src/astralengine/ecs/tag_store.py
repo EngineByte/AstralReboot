@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Iterable
+from typing import Any, Dict
 
 import numpy as np
 import numpy.typing as npt
 
-from ecs.entity_allocator import EntityId, entity_index
+from astralengine.ecs.entity_allocator import EntityId, entity_index
 
 
 class TagStore:

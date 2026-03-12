@@ -1,8 +1,11 @@
+# src/astralengine/components/acceleration.py
+
 from __future__ import annotations
+
 from dataclasses import dataclass
 
-@dataclass(frozen=True, slots=True)
+
+@dataclass(slots=True)
 class Acceleration:
-    ax: float = 0.0
-    ay: float = 0.0
-    az: float = 0.0
+    linear: tuple[float, float, float] = (0.0, 0.0, 0.0)
+    angular: tuple[float, float, float] = (0.0, 0.0, 0.0)

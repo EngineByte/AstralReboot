@@ -2,16 +2,16 @@ from __future__ import annotations
 
 import numpy as np
 
-from ecs.query import Query
-from ecs.world import ECSWorld
-from components.chunk import Chunk
-from components.mesh import Mesh
-from components.transform import Transform
-from components.tags import DirtyRemesh
+from astralengine.ecs.query import Query
+from astralengine.ecs.world import ECSWorld
+from astralengine.components.chunk import Chunk
+from astralengine.components.mesh import Mesh
+from astralengine.components.transform import Transform
+from astralengine.components.tags import DirtyRemesh
 
-from resources.voxels.voxel_pool import VoxelPool
-from renderer.mesh_pool import MeshPool
-from resources.voxels.meshing import build_surface_mesh_from_voxels
+from astralengine.voxels.voxel_pool import VoxelPool
+from astralengine.voxels.mesh_pool import MeshPool
+from astralengine.voxels.meshing import build_surface_mesh_from_voxels
 
 
 def system_chunk_remesh(world: 'ECSWorld', dt: float) -> None:

@@ -10,8 +10,8 @@ from astralengine.voxels.chunk_map import ChunkMap
 from astralengine.voxels.mesh_pool import MeshPool
 from astralengine.voxels.voxel_pool import VoxelPool
 from astralengine.renderer.renderer import Renderer
-from resources.gravity_config import GravityConfig
-from resources.sky_settings import SkySettings
+from astralengine.resources.gravity_config import GravityConfig
+from astralengine.resources.sky_settings import SkySettings
 
 def install_core_resources(world: ECSWorld) -> None:
     '''
@@ -30,15 +30,15 @@ def install_core_resources(world: ECSWorld) -> None:
     world.resources.add(MeshPool())
     world.resources.add(Renderer())
     
-def default_gravity_config(world: ECSWorld) -> GravityConfig:
+def default_gravity_config() -> GravityConfig:
     return GravityConfig(
-        gravitational_constant = 1.0,
+        G=1.0,
         softening=0.01,
         max_force_distance=1.0e9,
         enabled=True
     )
     
-def default_sky_settings(world: ECSWorld) -> SkySettings:
+def default_sky_settings() -> SkySettings:
     return SkySettings(
         enabled=True,
         asset_id='skybox.milkyway',

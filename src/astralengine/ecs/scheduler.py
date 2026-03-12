@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Dict, List, Optional, Sequence, Tuple, TYPE_CHECKING
+from typing import Dict, List, Tuple, TYPE_CHECKING
 
-from ecs.system_spec import SystemSpec
+from astralengine.ecs.system_spec import SystemSpec
 
-if TYPE_CHECKING: 
-    from ecs.world import ECSWorld
+if TYPE_CHECKING:
+    from astralengine.ecs.world import ECSWorld
+
 
 class SystemScheduler:
     def __init__(self) -> None:
@@ -72,18 +72,22 @@ class SystemScheduler:
                 return True
         return False
 
-    def run_phase(self, phase: str, world: 'ECSWorld') -> None:
+    def run_phase(self, phase: str, world: "ECSWorld") -> None:
         if phase not in self._phases:
             return
 
         systems = self._get_sorted_phase(phase)
-        dt = getattr(world, 'dt_seconds', 0.0)
+        dt = getattr(world, "dt_seconds", 0.0)
 
         for spec in systems:
             if not spec.enabled:
                 continue
             spec.func(world, dt)
-        
+
+    def run(self, world: "ECSWorld") -> None:
+        for phase in self.phases():
+            self.run_phase(phase, world)
+
     def _get_sorted_phase(self, phase: str) -> List[SystemSpec]:
         if not self._dirty.get(phase, True):
             return self._sorted_cache[phase]
@@ -97,7 +101,7 @@ class SystemScheduler:
 
     def stats(self) -> Dict[str, object]:
         return {
-            'phases': {
+            "phases": {
                 phase: [s.system_name() for s in self._get_sorted_phase(phase)]
                 for phase in self._phases.keys()
             }

@@ -1,3 +1,4 @@
+README.md
 pyproject.toml
 src/astralengine/__init__.py
 src/astralengine/__main__.py
@@ -67,7 +68,7 @@ src/astralengine/game/factories/__init__.py
 src/astralengine/game/factories/camera_factory.py
 src/astralengine/game/factories/chunk_factory.py
 src/astralengine/game/factories/gravity_body_factory.py
-src/astralengine/game/factories/player_factor.py
+src/astralengine/game/factories/player_factory.py
 src/astralengine/game/recipes/__init__.py
 src/astralengine/game/recipes/gravity_sandbox.py
 src/astralengine/game/recipes/minimal_scene.py
@@ -92,7 +93,6 @@ src/astralengine/math/scalar.py
 src/astralengine/math/transforms.py
 src/astralengine/math/vectors.py
 src/astralengine/renderer/__init__.py
-src/astralengine/renderer/astralwindow.py
 src/astralengine/renderer/cubemap.py
 src/astralengine/renderer/mesh_pool.py
 src/astralengine/renderer/renderer.py

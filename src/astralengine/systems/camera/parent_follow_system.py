@@ -1,31 +1,36 @@
-from ecs.world import ECSWorld
-from components.parent_follow import ParentFollow
-from components.transform import Transform
-from ecs.query import Query
-from components.tags import DirtyMatrices
+from __future__ import annotations
 
-def system_parent_follow(world: 'ECSWorld', dt: float):
-    follow = world.store(ParentFollow)
-    tr = world.store(Transform)
-    
-    for eid, i_tr, i_f in Query(world, (Transform, ParentFollow)):
-        p_eid = int(follow.parent[i_f])
-        if p_eid < 0:
+from astralengine.components.parent_follow import ParentFollow
+from astralengine.components.tags import DirtyMatrices
+from astralengine.components.transform import Transform
+from astralengine.ecs.query import Query
+from astralengine.ecs.world import ECSWorld
+from astralengine.stores.parent_follow_store import ParentFollowStore
+from astralengine.stores.transform_store import TransformStore
+
+
+def system_parent_follow(world: ECSWorld, dt: float) -> None:
+    _ = dt
+
+    tr_store: TransformStore = world.store(Transform)
+    follow_store: ParentFollowStore = world.store(ParentFollow)
+
+    for eid, i_tr, i_follow in Query(world, (Transform, ParentFollow)):
+        parent_eid = int(follow_store.parent_eid[i_follow])
+
+        try:
+            i_parent = tr_store.dense_index(parent_eid)
+        except KeyError:
             continue
-        
-        if not world.has_component(p_eid, Transform):
-            continue
-        
-        i_parent = tr.dense_index(p_eid)
-        
-        tr.px[i_tr] = tr.px[i_parent] + follow.ox[i_f]
-        tr.py[i_tr] = tr.py[i_parent] + follow.oy[i_f]
-        tr.pz[i_tr] = tr.pz[i_parent] + follow.oz[i_f]
-        
-        tr.yaw[i_tr] = tr.yaw[i_parent]
-        tr.pitch[i_tr] = tr.pitch[i_parent]
-        tr.roll[i_tr] = tr.roll[i_parent]
-        
+
+        if bool(follow_store.follow_position[i_follow]):
+            tr_store.px[i_tr] = tr_store.px[i_parent] + follow_store.off_x[i_follow]
+            tr_store.py[i_tr] = tr_store.py[i_parent] + follow_store.off_y[i_follow]
+            tr_store.pz[i_tr] = tr_store.pz[i_parent] + follow_store.off_z[i_follow]
+
+        if bool(follow_store.follow_rotation[i_follow]):
+            tr_store.pitch_deg[i_tr] = tr_store.pitch_deg[i_parent]
+            tr_store.yaw_deg[i_tr] = tr_store.yaw_deg[i_parent]
+            tr_store.roll_deg[i_tr] = tr_store.roll_deg[i_parent]
+
         world.add_tag(eid, DirtyMatrices)
-        
-      

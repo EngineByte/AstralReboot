@@ -1,84 +1,78 @@
 from __future__ import annotations
 
-from typing import Any
-
 import numpy as np
-import numpy.typing as npt
 
-from ecs.soa_store import SoAStore
-from components.transform import Transform
+from astralengine.components.transform import Transform
+from astralengine.ecs.soa_store import SoAStore
 
 
 class TransformStore(SoAStore):
     def __init__(self, entity_capacity: int, initial_dense_capacity: int = 1024) -> None:
-        super().__init__(entity_capacity=entity_capacity, initial_dense_capacity=initial_dense_capacity)
+        super().__init__(entity_capacity, initial_dense_capacity)
 
-        cap = int(initial_dense_capacity)
-        if cap <= 0:
-            cap = 1
+        cap = self._dense_eids.shape[0]
 
-        self.px: npt.NDArray[np.float32] = np.zeros(cap, dtype=np.float32)
-        self.py: npt.NDArray[np.float32] = np.zeros(cap, dtype=np.float32)
-        self.pz: npt.NDArray[np.float32] = np.zeros(cap, dtype=np.float32)
+        self.px = np.zeros(cap, dtype=np.float32)
+        self.py = np.zeros(cap, dtype=np.float32)
+        self.pz = np.zeros(cap, dtype=np.float32)
 
-        self.yaw: npt.NDArray[np.float32] = np.zeros(cap, dtype=np.float32)
-        self.pitch: npt.NDArray[np.float32] = np.zeros(cap, dtype=np.float32)
-        self.roll: npt.NDArray[np.float32] = np.zeros(cap, dtype=np.float32)
+        self.pitch_deg = np.zeros(cap, dtype=np.float32)
+        self.yaw_deg = np.zeros(cap, dtype=np.float32)
+        self.roll_deg = np.zeros(cap, dtype=np.float32)
 
-        self.sx: npt.NDArray[np.float32] = np.ones(cap, dtype=np.float32)
-        self.sy: npt.NDArray[np.float32] = np.ones(cap, dtype=np.float32)
-        self.sz: npt.NDArray[np.float32] = np.ones(cap, dtype=np.float32)
+        self.sx = np.ones(cap, dtype=np.float32)
+        self.sy = np.ones(cap, dtype=np.float32)
+        self.sz = np.ones(cap, dtype=np.float32)
 
     def _ensure_dense_capacity(self, new_dense_capacity: int) -> None:
-        cur = int(self.px.shape[0])
-        if new_dense_capacity <= cur:
+        old_cap = self._dense_eids.shape[0]
+        super()._ensure_dense_capacity(new_dense_capacity)
+        new_cap = self._dense_eids.shape[0]
+
+        if new_cap == old_cap:
             return
 
-        super()._ensure_dense_capacity(new_dense_capacity)
+        self.px = np.resize(self.px, new_cap).astype(np.float32, copy=False)
+        self.py = np.resize(self.py, new_cap).astype(np.float32, copy=False)
+        self.pz = np.resize(self.pz, new_cap).astype(np.float32, copy=False)
 
-        self.px = np.resize(self.px, new_dense_capacity).astype(np.float32, copy=False)
-        self.py = np.resize(self.py, new_dense_capacity).astype(np.float32, copy=False)
-        self.pz = np.resize(self.pz, new_dense_capacity).astype(np.float32, copy=False)
+        self.pitch_deg = np.resize(self.pitch_deg, new_cap).astype(np.float32, copy=False)
+        self.yaw_deg = np.resize(self.yaw_deg, new_cap).astype(np.float32, copy=False)
+        self.roll_deg = np.resize(self.roll_deg, new_cap).astype(np.float32, copy=False)
 
-        self.yaw = np.resize(self.yaw, new_dense_capacity).astype(np.float32, copy=False)
-        self.pitch = np.resize(self.pitch, new_dense_capacity).astype(np.float32, copy=False)
-        self.roll = np.resize(self.roll, new_dense_capacity).astype(np.float32, copy=False)
+        old_sx = self.sx
+        old_sy = self.sy
+        old_sz = self.sz
 
-        self.sx = np.resize(self.sx, new_dense_capacity).astype(np.float32, copy=False)
-        self.sy = np.resize(self.sy, new_dense_capacity).astype(np.float32, copy=False)
-        self.sz = np.resize(self.sz, new_dense_capacity).astype(np.float32, copy=False)
+        self.sx = np.ones(new_cap, dtype=np.float32)
+        self.sy = np.ones(new_cap, dtype=np.float32)
+        self.sz = np.ones(new_cap, dtype=np.float32)
 
-    def _on_add_dense(self, dense_i: int, component: Any) -> None:
-        if not isinstance(component, Transform):
-            raise TypeError(f'TransformStore expected Transform, got {type(component)}')
+        self.sx[:old_cap] = old_sx[:old_cap]
+        self.sy[:old_cap] = old_sy[:old_cap]
+        self.sz[:old_cap] = old_sz[:old_cap]
 
-        p = component.position
-        r = component.rotation
-        s = component.scale
+    def _on_add_dense(self, dense_i: int, component: Transform) -> None:
+        self.px[dense_i] = component.position[0]
+        self.py[dense_i] = component.position[1]
+        self.pz[dense_i] = component.position[2]
 
-        if p.shape != (3,) or r.shape != (3,) or s.shape != (3,):
-            raise ValueError('Transform.position/rotation_ypr/scale must be shape (3,) float32 arrays')
+        self.pitch_deg[dense_i] = component.rotation[0]
+        self.yaw_deg[dense_i] = component.rotation[1]
+        self.roll_deg[dense_i] = component.rotation[2]
 
-        self.px[dense_i] = np.float32(p[0])
-        self.py[dense_i] = np.float32(p[1])
-        self.pz[dense_i] = np.float32(p[2])
-
-        self.yaw[dense_i] = np.float32(r[0])
-        self.pitch[dense_i] = np.float32(r[1])
-        self.roll[dense_i] = np.float32(r[2])
-
-        self.sx[dense_i] = np.float32(s[0])
-        self.sy[dense_i] = np.float32(s[1])
-        self.sz[dense_i] = np.float32(s[2])
+        self.sx[dense_i] = component.scale[0]
+        self.sy[dense_i] = component.scale[1]
+        self.sz[dense_i] = component.scale[2]
 
     def _on_move_dense(self, dst_i: int, src_i: int) -> None:
-        self.px[dst_i] = self.px[src_i]
-        self.py[dst_i] = self.py[src_i]
-        self.pz[dst_i] = self.pz[src_i]
+        self.px[dst_i] = self.x[src_i]
+        self.py[dst_i] = self.y[src_i]
+        self.pz[dst_i] = self.z[src_i]
 
-        self.yaw[dst_i] = self.yaw[src_i]
-        self.pitch[dst_i] = self.pitch[src_i]
-        self.roll[dst_i] = self.roll[src_i]
+        self.pitch_deg[dst_i] = self.pitch_deg[src_i]
+        self.yaw_deg[dst_i] = self.yaw_deg[src_i]
+        self.roll_deg[dst_i] = self.roll_deg[src_i]
 
         self.sx[dst_i] = self.sx[src_i]
         self.sy[dst_i] = self.sy[src_i]
@@ -89,18 +83,10 @@ class TransformStore(SoAStore):
         self.py[dense_i] = 0.0
         self.pz[dense_i] = 0.0
 
-        self.yaw[dense_i] = 0.0
-        self.pitch[dense_i] = 0.0
-        self.roll[dense_i] = 0.0
+        self.pitch_deg[dense_i] = 0.0
+        self.yaw_deg[dense_i] = 0.0
+        self.roll_deg[dense_i] = 0.0
 
         self.sx[dense_i] = 1.0
         self.sy[dense_i] = 1.0
         self.sz[dense_i] = 1.0
-
-    def set_position(self, dense_i: int, x: float, y: float, z: float) -> None:
-        self.px[dense_i] = np.float32(x)
-        self.py[dense_i] = np.float32(y)
-        self.pz[dense_i] = np.float32(z)
-
-    def get_position(self, dense_i: int) -> tuple[float, float, float]:
-        return (float(self.px[dense_i]), float(self.py[dense_i]), float(self.pz[dense_i]))

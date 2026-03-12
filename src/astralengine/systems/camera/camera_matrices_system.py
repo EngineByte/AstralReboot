@@ -1,38 +1,69 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import numpy as np
 
-from ecs.query import Query
-from ecs.math_camera import view_from_transform, perspective_rh_opengl
+from astralengine.components.camera import Camera
+from astralengine.components.camera_matrices import CameraMatrices
+from astralengine.components.tags import DirtyMatrices
+from astralengine.components.transform import Transform
+from astralengine.ecs.query import Query
+from astralengine.ecs.world import ECSWorld
+from astralengine.math.camera import make_perspective_matrix, make_view_matrix
+from astralengine.resources.render_settings import RenderSettings
+from astralengine.stores.camera_matrices_store import CameraMatricesStore
+from astralengine.stores.camera_store import CameraStore
+from astralengine.stores.transform_store import TransformStore
 
-from components.transform import Transform
-from components.camera import Camera
-from components.camera_matrices import CameraMatrices
-from components.tags import DirtyMatrices
 
-if TYPE_CHECKING:
-    from ecs.world import ECSWorld
+def system_update_camera_matrices(world: ECSWorld, dt: float) -> None:
+    _ = dt
 
+    settings = world.resources.get(RenderSettings)
 
-def system_update_camera_matrices(world: 'ECSWorld', dt: float) -> None:
-    tr = world.store(Transform)            
-    cam = world.store(Camera)             
-    mats = world.store(CameraMatrices)    
+    tr_store: TransformStore = world.store(Transform)
+    cam_store: CameraStore = world.store(Camera)
+    mats_store: CameraMatricesStore = world.store(CameraMatrices)
 
-    for eid, i_tr, i_cam, i_mats in Query(world, (Transform, Camera, CameraMatrices, DirtyMatrices)):
-        px = float(tr.px[i_tr]); py = float(tr.py[i_tr]); pz = float(tr.pz[i_tr])
-        yaw = float(tr.yaw[i_tr]); pitch = float(tr.pitch[i_tr]); roll = float(tr.roll[i_tr])
+    aspect = settings.aspect_ratio()
 
-        fov = float(cam.fov[i_cam])
-        aspect = float(cam.aspect[i_cam])
-        near = float(cam.near[i_cam])
-        far = float(cam.far[i_cam])
+    for eid, i_tr, i_cam, i_mats in Query(
+        world,
+        (Transform, Camera, CameraMatrices, DirtyMatrices),
+    ):
+        position = np.array(
+            [
+                tr_store.px[i_tr],
+                tr_store.py[i_tr],
+                tr_store.pz[i_tr],
+            ],
+            dtype=np.float32,
+        )
 
-        view = view_from_transform(px, py, pz, yaw, pitch, roll)
-        proj = perspective_rh_opengl(fov, aspect, near, far)
+        rotation = np.array(
+            [
+                tr_store.pitch_deg[i_tr],
+                tr_store.yaw_deg[i_tr],
+                tr_store.roll_deg[i_tr],
+            ],
+            dtype=np.float32,
+        )
 
-        mats.view[i_mats] = view
-        mats.proj[i_mats] = proj
+        fov = float(cam_store.fov[i_cam])
+        near = float(cam_store.near[i_cam])
+        far = float(cam_store.far[i_cam])
 
-        world.defer_remove_tag(eid, DirtyMatrices)
-        
+        view = make_view_matrix(
+            position=position,
+            rotation=rotation,
+        )
+        proj = make_perspective_matrix(
+            fov=fov,
+            aspect=aspect,
+            near=near,
+            far=far,
+        )
+
+        mats_store.view[i_mats] = view
+        mats_store.proj[i_mats] = proj
+
+        world.remove_tag(eid, DirtyMatrices)
