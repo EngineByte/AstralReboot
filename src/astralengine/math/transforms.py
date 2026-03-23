@@ -1,13 +1,18 @@
 from __future__ import annotations
 
+from typing import Tuple
+
 import numpy as np
 import numpy.typing as npt
 
 from astralengine.math.camera import rotation_matrix_xyz
-
-
-Vec3 = npt.NDArray[np.float32]
-Mat4 = npt.NDArray[np.float32]
+from astralengine.math.types import Vec3, Mat4, Quat
+from astralengine.math.quaternion import (
+    quat_to_mat4, 
+    quat_rotate_vec3,
+    quat_conjugate,
+    quat_normalize    
+)
 
 
 def make_translation_matrix(position: Vec3) -> Mat4:
@@ -58,3 +63,31 @@ def compose_centered_model_matrix(
     t_centre[2, 3] = -float(centre[2])
 
     return (t_world @ r @ s @ t_centre).astype(np.float32, copy=False)
+
+def transform_matrix(pos: Vec3, rot: Quat) -> Mat4:
+    m = quat_to_mat4(rot)
+    m[0:3, 3] = pos
+    
+    return m
+
+def transform_point(pos: Vec3, rot: Quat, point: Vec3) -> Vec3:
+    return pos + quat_rotate_vec3(rot, point)
+
+def inverse_transform_point(pos: Vec3, rot: Quat, point: Vec3) -> Vec3:
+    inv_q = quat_conjugate(quat_normalize(rot))
+    
+    return quat_rotate_vec3(inv_q, point - pos)
+
+def compose_transform(
+    parent_pos: Vec3,
+    parent_rot: Quat,
+    child_pos: Vec3,
+    child_rot: Quat
+) -> Tuple[Vec3, Quat]:
+    
+    from astralengine.math.quaternion import quat_mul
+    
+    world_pos = transform_point(parent_pos, parent_rot, child_pos)
+    world_rot = quat_mul(parent_rot, child_rot)
+    
+    return world_pos, world_rot
