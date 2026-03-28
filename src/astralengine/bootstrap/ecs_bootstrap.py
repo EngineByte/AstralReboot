@@ -15,7 +15,15 @@ from astralengine.components.tags import DirtyMatrices, DirtyRemesh, DirtyRemode
 from astralengine.components.parent_follow import ParentFollow
 from astralengine.components.player_controller import PlayerController
 from astralengine.components.gravity import GravityWell
+from astralengine.components.frame_anchor import FrameAnchor
+from astralengine.components.frame_child import FrameChild
+from astralengine.components.chunk_residency import ChunkResidency
+from astralengine.components.chunk_lod import ChunkLOD
 
+from astralengine.stores.frame_anchor_store import FrameAnchorStore
+from astralengine.stores.frame_child_store import FrameChildStore
+from astralengine.stores.chunk_resident_store import ChunkResidencyStore
+from astralengine.stores.chunk_lod_store import ChunkLODStore
 from astralengine.stores.camera_matrices_store import CameraMatricesStore
 from astralengine.stores.model_matrix_store import ModelMatrixStore
 from astralengine.stores.camera_store import CameraStore
@@ -58,7 +66,10 @@ def install_component_stores(world: ECSWorld) -> None:
     world.register_store(ModelMatrix, ModelMatrixStore(entity_capacity=100_000))
     world.register_store(Mass, MassStore(entity_capacity=100_000))
     world.register_store(GravityWell, GravityWellStore(entity_capacity=100_000))
-    
+    world.register_store(FrameAnchor, FrameAnchorStore(entity_capacity=1024))
+    world.register_store(FrameChild, FrameChildStore(entity_capacity=16_384))
+    world.register_store(ChunkLOD, ChunkLODStore(entity_capacity=16_384))
+    world.register_store(ChunkResidency, ChunkResidencyStore(entity_capacity=100_000))
 
 def install_tag_stores(world: ECSWorld) -> None:
     world.register_tag_store(DirtyMatrices)
@@ -74,6 +85,7 @@ def install_scheduler_phases(world: ECSWorld) -> None:
     world.scheduler.add_phase('input')
     world.scheduler.add_phase('pre-update')
     world.scheduler.add_phase('update')
+    world.scheduler.add_phase('streaming')
     world.scheduler.add_phase('post_update')
     world.scheduler.add_phase('render_submit')
     world.scheduler.add_phase('render')

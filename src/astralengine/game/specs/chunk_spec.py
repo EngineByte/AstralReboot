@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 @dataclass(slots=True)
 class ChunkSpec:
+    frame_eid: int
     coord: tuple[int, int, int]
     size: int = 16
     position: tuple[float, float, float] = (0.0, 0.0, 0.0)

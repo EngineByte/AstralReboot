@@ -5,6 +5,8 @@ import numpy as np
 from astralengine.components.chunk import Chunk
 from astralengine.components.mesh import Mesh
 from astralengine.components.model_matrix import ModelMatrix
+from astralengine.components.chunk_residency import ChunkResidency
+from astralengine.components.chunk_lod import ChunkLOD
 from astralengine.ecs.query import Query
 from astralengine.ecs.world import ECSWorld
 from astralengine.renderer.pipeline.draw_commands import MeshDrawCommand

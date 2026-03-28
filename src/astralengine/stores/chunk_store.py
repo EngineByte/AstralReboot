@@ -14,6 +14,8 @@ class ChunkStore(SoAStore):
 
         cap = max(1, int(initial_dense_capacity))
 
+        self.frame_eid: npt.NDArray[np.int32] = np.full(cap, -1, dtype=np.int32)
+
         self.cx: npt.NDArray[np.int32] = np.zeros(cap, dtype=np.int32)
         self.cy: npt.NDArray[np.int32] = np.zeros(cap, dtype=np.int32)
         self.cz: npt.NDArray[np.int32] = np.zeros(cap, dtype=np.int32)
@@ -27,6 +29,8 @@ class ChunkStore(SoAStore):
         if new_dense_capacity <= cur:
             return
         super()._ensure_dense_capacity(new_dense_capacity)
+
+        self.frame_eid = np.resize(self.frame_eid, new_dense_capacity).astype(np.int32, copy=False)
 
         self.cx = np.resize(self.cx, new_dense_capacity).astype(np.int32, copy=False)
         self.cy = np.resize(self.cy, new_dense_capacity).astype(np.int32, copy=False)
@@ -43,6 +47,9 @@ class ChunkStore(SoAStore):
         if len(c) != 3:
             raise ValueError('Chunk.coord must be shape (3,) int32 array')
 
+
+        self.frame_eid[dense_i] = np.int32(component.frame_eid)
+
         self.cx[dense_i] = np.int32(c[0])
         self.cy[dense_i] = np.int32(c[1])
         self.cz[dense_i] = np.int32(c[2])
@@ -51,6 +58,7 @@ class ChunkStore(SoAStore):
         self.voxel_handle[dense_i] = np.int32(component.voxel_handle)
 
     def _on_move_dense(self, dst_i: int, src_i: int) -> None:
+        self.frame_eid[dst_i] = self.frame_eid[src_i]
         self.cx[dst_i] = self.cx[src_i]
         self.cy[dst_i] = self.cy[src_i]
         self.cz[dst_i] = self.cz[src_i]
@@ -58,6 +66,7 @@ class ChunkStore(SoAStore):
         self.voxel_handle[dst_i] = self.voxel_handle[src_i]
 
     def _on_clear_dense(self, dense_i: int) -> None:
+        self.frame_eid[dense_i] = -1
         self.cx[dense_i] = 0
         self.cy[dense_i] = 0
         self.cz[dense_i] = 0

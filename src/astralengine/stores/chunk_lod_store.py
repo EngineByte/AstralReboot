@@ -1,0 +1,16 @@
+from __future__ import annotations
+
+from typing import Any
+import numpy as np
+import numpy.typing as npt
+
+from astralengine.ecs.soa_store import SoAStore
+from astralengine.components.chunk_lod import ChunkLOD
+
+
+class ChunkLODStore(SoAStore):
+    def __init__(self, entity_capacity: int, initial_dense_capacity: int = 16384) -> None: ...
+    def _ensure_dense_capacity(self, new_dense_capacity: int) -> None: ...
+    def _on_add_dense(self, dense_i: int, component: Any) -> None: ...
+    def _on_move_dense(self, dst_i: int, src_i: int) -> None: ...
+    def _on_clear_dense(self, dense_i: int) -> None: ...

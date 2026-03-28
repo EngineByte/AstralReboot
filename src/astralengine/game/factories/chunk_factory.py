@@ -9,6 +9,10 @@ from astralengine.components.model_matrix import ModelMatrix
 from astralengine.components.tags import DirtyMatrices, DirtyRemesh, DirtyRemodel
 from astralengine.components.transform import Transform
 from astralengine.components.velocity import Velocity
+from astralengine.components.chunk_lod import ChunkLOD
+from astralengine.components.chunk_residency import ChunkResidency
+from astralengine.components.frame_child import FrameChild
+from astralengine.streaming.chunk_stream_index import ChunkStreamIndex
 from astralengine.ecs.world import ECSWorld
 from astralengine.game.specs.chunk_spec import ChunkSpec
 from astralengine.voxels.chunk_map import ChunkMap
@@ -25,6 +29,39 @@ def spawn_chunk(world: ECSWorld, spec: ChunkSpec) -> int:
     )
 
     eid = world.create_entity()
+
+    frame_eid = -2
+
+    world.add_component(
+        eid,
+        FrameChild(
+            frame_eid=spec.frame_eid
+        )
+    )
+
+    world.add_component(
+        eid,
+        ChunkResidency(
+            active=True,
+            resident=True,
+            visible=True,
+            pinned=True
+        )
+    )
+
+    world.add_component(
+        eid,
+        ChunkLOD(
+            level=0,
+            target_level=0,
+            render_scale_cm=5
+        )
+    )
+
+    world.add_component(
+        eid,
+        ChunkStreamIndex()
+    )
 
     world.add_component(
         eid,
@@ -86,3 +123,5 @@ def spawn_chunk(world: ECSWorld, spec: ChunkSpec) -> int:
         world.add_tag(eid, DirtyRemodel)
 
     return eid
+
+def destroy_chunk(world: ECSWorld, eid: int) -> None: ...

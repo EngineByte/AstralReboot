@@ -13,6 +13,13 @@ from astralengine.renderer.renderer import Renderer
 from astralengine.resources.gravity_config import GravityConfig
 from astralengine.resources.sky_settings import SkySettings
 
+from astralengine.frames.frame_graph import FrameGraph
+from astralengine.resources.frame_settings import FrameSettings
+from astralengine.resources.streaming_settings import StreamingSettings
+from astralengine.resources.small_world_settings import SmallWorldSettings
+from astralengine.streaming.chunk_stream_index import ChunkStreamIndex
+from astralengine.streaming.chunk_requests import ChunkRequestQueue
+
 def install_core_resources(world: ECSWorld) -> None:
     '''
     Install core global resources needed by astral engine.
@@ -29,6 +36,18 @@ def install_core_resources(world: ECSWorld) -> None:
     world.resources.add(VoxelPool())
     world.resources.add(MeshPool())
     world.resources.add(Renderer())
+    world.resources.add(default_frame_settings())
+    world.resources.add(default_streaming_settings())
+    world.resources.add(default_small_world_settings())
+
+def default_frame_settings() -> FrameSettings:
+    return FrameSettings()
+
+def default_streaming_settings() -> StreamingSettings:
+    return StreamingSettings()
+
+def default_small_world_settings() -> SmallWorldSettings:
+    return SmallWorldSettings()
     
 def default_gravity_config() -> GravityConfig:
     return GravityConfig(

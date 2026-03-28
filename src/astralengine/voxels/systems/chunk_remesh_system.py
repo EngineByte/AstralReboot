@@ -8,7 +8,8 @@ from astralengine.components.chunk import Chunk
 from astralengine.components.mesh import Mesh
 from astralengine.components.transform import Transform
 from astralengine.components.tags import DirtyRemesh
-
+from astralengine.components.chunk_lod import ChunkLOD
+from astralengine.resources.small_world_settings import SmallWorldSettings
 from astralengine.voxels.voxel_pool import VoxelPool
 from astralengine.voxels.mesh_pool import MeshPool
 from astralengine.voxels.meshing import build_surface_mesh_from_voxels

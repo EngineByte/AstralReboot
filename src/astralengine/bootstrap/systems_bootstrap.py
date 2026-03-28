@@ -18,6 +18,10 @@ from astralengine.systems.physics.movement_system import system_movement
 from astralengine.systems.player.player_controller_system import system_player_controller
 from astralengine.systems.render.update_model_matrices_system import system_update_model_matrices
 from astralengine.voxels.systems.chunk_remesh_system import system_chunk_remesh
+from astralengine.systems.frames.frame_transform_system import system_frame_transforms
+from astralengine.systems.streaming.chunk_streaming_system import system_chunk_streaming
+from astralengine.systems.streaming.chunk_activation_system import system_chunk_activation
+from astralengine.systems.streaming.chunk_lod_system import system_chunk_lod
 
 
 def install_core_systems(world: ECSWorld) -> None:
@@ -147,5 +151,41 @@ def install_core_systems(world: ECSWorld) -> None:
             phase="render",
             order=10,
             name="execute_render_pipeline",
+        )
+    )
+
+    scheduler.add_system(
+        SystemSpec(
+            func=system_chunk_activation,
+            phase='streaming',
+            order=51,
+            name='chunk_activation'
+        )
+    )
+    
+    scheduler.add_system(
+        SystemSpec(
+            func=system_frame_transforms,
+            phase='update',
+            order=50,
+            name='frame_transforms' 
+        )
+    )
+    
+    scheduler.add_system(
+        SystemSpec(
+            func=system_chunk_streaming,
+            phase='streaming',
+            order=49,
+            name='chunk_streaming' 
+        )
+    )
+    
+    scheduler.add_system(
+        SystemSpec(
+            func=system_chunk_lod,
+            phase='streaming',
+            order=50,
+            name='chunk_lod'            
         )
     )
