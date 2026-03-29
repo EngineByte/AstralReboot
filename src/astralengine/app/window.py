@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import pyglet
 
-from astralengine.ecs.world import ECSWorld
+from astralengine.ecs.core.world import ECSWorld
 from astralengine.resources.input_state import InputState
 from astralengine.resources.render_settings import RenderSettings
-from astralengine.renderer.renderer import Renderer
+from astralengine.rendering.renderer import Renderer
 
 
 class AstralWindow(pyglet.window.Window):

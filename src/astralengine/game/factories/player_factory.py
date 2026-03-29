@@ -5,7 +5,7 @@ from astralengine.components.player_controller import PlayerController
 from astralengine.components.tags import DirtyMatrices, DirtyRemodel
 from astralengine.components.transform import Transform
 from astralengine.components.velocity import Velocity
-from astralengine.ecs.world import ECSWorld
+from astralengine.ecs.core.world import ECSWorld
 from astralengine.game.specs.player_spec import PlayerSpec
 
 

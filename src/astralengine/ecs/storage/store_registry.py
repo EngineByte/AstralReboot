@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, Iterator, List, Sequence, Tuple, Type
 
-from astralengine.ecs.entity_allocator import EntityId
-from astralengine.ecs.tag_store import TagStore
+from astralengine.ecs.core.entity_allocator import EntityId
+from astralengine.ecs.storage.tag_store import TagStore
 
 
 class StoreRegistry:

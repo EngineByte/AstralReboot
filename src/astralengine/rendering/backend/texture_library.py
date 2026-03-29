@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from astralengine.assets.asset_manager import AssetManager
 from astralengine.assets.loaders.cubemap_loader import CubemapLoader
-from astralengine.renderer.backend.cubemap_texture import CubemapTexture
+from astralengine.rendering.backend.cubemap_texture import CubemapTexture
 
 
 @dataclass(slots=True)

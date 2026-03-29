@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from astralengine.ecs.world import ECSWorld
-from astralengine.renderer.pipeline.draw_commands import SkyboxDrawCommand
-from astralengine.renderer.renderer import Renderer
+from astralengine.ecs.core.world import ECSWorld
+from astralengine.rendering.pipeline.draw_commands import SkyboxDrawCommand
+from astralengine.rendering.renderer import Renderer
 from astralengine.resources.render_settings import RenderSettings
 from astralengine.resources.sky_settings import SkySettings
 

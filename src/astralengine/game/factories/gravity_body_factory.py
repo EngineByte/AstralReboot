@@ -1,4 +1,4 @@
-from astralengine.ecs.world import ECSWorld
+from astralengine.ecs.core.world import ECSWorld
 from astralengine.components.transform import Transform
 from astralengine.components.velocity import Velocity
 from astralengine.components.acceleration import Acceleration

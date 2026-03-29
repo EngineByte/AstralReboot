@@ -3,8 +3,8 @@ from __future__ import annotations
 from astralengine.components.tags import DirtyMatrices, DirtyRemodel
 from astralengine.components.transform import Transform
 from astralengine.components.velocity import Velocity
-from astralengine.ecs.query import Query
-from astralengine.ecs.world import ECSWorld
+from astralengine.ecs.query.query import Query
+from astralengine.ecs.core.world import ECSWorld
 from astralengine.stores.transform_store import TransformStore
 from astralengine.stores.velocity_store import VelocityStore
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 
 from astralengine.components.gravity import GravityWell
-from astralengine.ecs.soa_store import SoAStore
+from astralengine.ecs.storage.soa_store import SoAStore
 
 
 class GravityWellStore(SoAStore):

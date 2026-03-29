@@ -5,7 +5,7 @@ from typing import Any
 import numpy as np
 import numpy.typing as npt
 
-from astralengine.ecs.soa_store import SoAStore
+from astralengine.ecs.storage.soa_store import SoAStore
 from astralengine.components.mass import Mass
 
 

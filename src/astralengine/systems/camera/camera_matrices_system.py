@@ -6,8 +6,8 @@ from astralengine.components.camera import Camera
 from astralengine.components.camera_matrices import CameraMatrices
 from astralengine.components.tags import DirtyMatrices
 from astralengine.components.transform import Transform
-from astralengine.ecs.query import Query
-from astralengine.ecs.world import ECSWorld
+from astralengine.ecs.query.query import Query
+from astralengine.ecs.core.world import ECSWorld
 from astralengine.math.camera import make_perspective_matrix, make_view_matrix
 from astralengine.resources.render_settings import RenderSettings
 from astralengine.stores.camera_matrices_store import CameraMatricesStore

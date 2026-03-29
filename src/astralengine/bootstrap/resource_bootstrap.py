@@ -1,4 +1,4 @@
-from astralengine.ecs.world import ECSWorld
+from astralengine.ecs.core.world import ECSWorld
 from astralengine.app.paths import build_paths
 from astralengine.assets.asset_manager import AssetManager
 from astralengine.resources.gravity_config import GravityConfig
@@ -9,7 +9,7 @@ from astralengine.resources.sky_settings import SkySettings
 from astralengine.voxels.chunk_map import ChunkMap
 from astralengine.voxels.mesh_pool import MeshPool
 from astralengine.voxels.voxel_pool import VoxelPool
-from astralengine.renderer.renderer import Renderer
+from astralengine.rendering.renderer import Renderer
 from astralengine.resources.gravity_config import GravityConfig
 from astralengine.resources.sky_settings import SkySettings
 

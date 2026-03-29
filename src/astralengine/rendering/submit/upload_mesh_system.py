@@ -3,9 +3,9 @@ from __future__ import annotations
 from astralengine.components.chunk import Chunk
 from astralengine.components.mesh import Mesh
 from astralengine.components.tags import DirtyRemesh
-from astralengine.ecs.query import Query
-from astralengine.ecs.world import ECSWorld
-from astralengine.renderer.backend.gpu_mesh_cache import GpuMeshCache
+from astralengine.ecs.query.query import Query
+from astralengine.ecs.core.world import ECSWorld
+from astralengine.rendering.backend.gpu_mesh_cache import GpuMeshCache
 from astralengine.stores.mesh_store import MeshStore
 from astralengine.voxels.mesh_pool import MeshPool
 

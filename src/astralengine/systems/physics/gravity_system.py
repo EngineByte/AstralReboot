@@ -8,11 +8,11 @@ from astralengine.components.acceleration import Acceleration
 from astralengine.components.gravity import GravityWell
 from astralengine.components.mass import Mass
 from astralengine.components.transform import Transform
-from astralengine.ecs.query import Query
+from astralengine.ecs.query.query import Query
 from astralengine.resources.gravity_config import GravityConfig
 
 if TYPE_CHECKING:
-    from astralengine.ecs.world import ECSWorld
+    from astralengine.ecs.core.world import ECSWorld
 
 
 def system_gravity(world: "ECSWorld", dt: float) -> None:

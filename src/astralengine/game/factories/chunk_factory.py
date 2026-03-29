@@ -13,7 +13,7 @@ from astralengine.components.chunk_lod import ChunkLOD
 from astralengine.components.chunk_residency import ChunkResidency
 from astralengine.components.frame_child import FrameChild
 from astralengine.streaming.chunk_stream_index import ChunkStreamIndex
-from astralengine.ecs.world import ECSWorld
+from astralengine.ecs.core.world import ECSWorld
 from astralengine.game.specs.chunk_spec import ChunkSpec
 from astralengine.voxels.chunk_map import ChunkMap
 from astralengine.voxels.voxel_pool import VoxelPool

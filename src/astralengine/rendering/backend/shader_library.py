@@ -6,7 +6,7 @@ from typing import Dict
 from pyglet import gl
 
 from astralengine.assets.asset_manager import AssetManager
-from astralengine.renderer.backend.shader_program import (
+from astralengine.rendering.backend.shader_program import (
     ShaderProgram,
     compile_shader,
     link_program,

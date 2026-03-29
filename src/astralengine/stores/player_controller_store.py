@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 
 from astralengine.components.player_controller import PlayerController
-from astralengine.ecs.soa_store import SoAStore
+from astralengine.ecs.storage.soa_store import SoAStore
 
 
 class PlayerControllerStore(SoAStore):

@@ -5,8 +5,8 @@ import numpy as np
 from astralengine.components.model_matrix import ModelMatrix
 from astralengine.components.tags import DirtyRemodel
 from astralengine.components.transform import Transform
-from astralengine.ecs.query import Query
-from astralengine.ecs.world import ECSWorld
+from astralengine.ecs.query.query import Query
+from astralengine.ecs.core.world import ECSWorld
 from astralengine.math.transforms import compose_centered_model_matrix
 from astralengine.stores.model_matrix_store import ModelMatrixStore
 from astralengine.stores.transform_store import TransformStore

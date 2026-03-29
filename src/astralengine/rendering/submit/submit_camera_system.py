@@ -4,9 +4,9 @@ from astralengine.components.camera import Camera
 from astralengine.components.transform import Transform
 from astralengine.components.camera_matrices import CameraMatrices
 from astralengine.components.tags import ActiveCamera
-from astralengine.ecs.query import Query
-from astralengine.ecs.world import ECSWorld
-from astralengine.renderer.renderer import Renderer
+from astralengine.ecs.query.query import Query
+from astralengine.ecs.core.world import ECSWorld
+from astralengine.rendering.renderer import Renderer
 from astralengine.resources.render_settings import RenderSettings
 from astralengine.stores.camera_matrices_store import CameraMatricesStore
 from astralengine.stores.transform_store import TransformStore

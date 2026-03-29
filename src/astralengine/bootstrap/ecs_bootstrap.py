@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from astralengine.ecs.world import ECSWorld
+from astralengine.ecs.core.world import ECSWorld
 
 from astralengine.components.transform import Transform
 from astralengine.components.velocity import Velocity

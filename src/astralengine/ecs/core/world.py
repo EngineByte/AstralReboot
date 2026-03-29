@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import Any
 
-from astralengine.ecs.command_buffer import CommandBuffer
-from astralengine.ecs.entity_allocator import EntityAllocator, EntityId
-from astralengine.ecs.resources import ResourceRegistry
-from astralengine.ecs.scheduler import SystemScheduler
-from astralengine.ecs.store_registry import StoreRegistry
-from astralengine.ecs.tag_store import TagStore
+from astralengine.ecs.core.command_buffer import CommandBuffer
+from astralengine.ecs.core.entity_allocator import EntityAllocator, EntityId
+from astralengine.ecs.resources.resource_registry import ResourceRegistry
+from astralengine.ecs.scheduling.scheduler import SystemScheduler
+from astralengine.ecs.storage.store_registry import StoreRegistry
+from astralengine.ecs.storage.tag_store import TagStore
 
 
 class ECSWorld:

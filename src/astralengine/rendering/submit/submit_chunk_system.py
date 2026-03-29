@@ -7,10 +7,10 @@ from astralengine.components.mesh import Mesh
 from astralengine.components.model_matrix import ModelMatrix
 from astralengine.components.chunk_residency import ChunkResidency
 from astralengine.components.chunk_lod import ChunkLOD
-from astralengine.ecs.query import Query
-from astralengine.ecs.world import ECSWorld
-from astralengine.renderer.pipeline.draw_commands import MeshDrawCommand
-from astralengine.renderer.renderer import Renderer
+from astralengine.ecs.query.query import Query
+from astralengine.ecs.core.world import ECSWorld
+from astralengine.rendering.pipeline.draw_commands import MeshDrawCommand
+from astralengine.rendering.renderer import Renderer
 from astralengine.resources.render_settings import RenderSettings
 from astralengine.stores.mesh_store import MeshStore
 from astralengine.stores.model_matrix_store import ModelMatrixStore

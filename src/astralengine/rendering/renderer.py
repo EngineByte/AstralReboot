@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from astralengine.ecs.world import ECSWorld
-from astralengine.renderer.backend.gpu_mesh_cache import GpuMeshCache
-from astralengine.renderer.backend.shader_library import ShaderLibrary
-from astralengine.renderer.pipeline.render_context import RenderContext
-from astralengine.renderer.pipeline.render_pipeline import RenderPipeline
-from astralengine.renderer.pipeline.render_queue import RenderQueue
+from astralengine.ecs.core.world import ECSWorld
+from astralengine.rendering.backend.gpu_mesh_cache import GpuMeshCache
+from astralengine.rendering.backend.shader_library import ShaderLibrary
+from astralengine.rendering.pipeline.render_context import RenderContext
+from astralengine.rendering.pipeline.render_pipeline import RenderPipeline
+from astralengine.rendering.pipeline.render_queue import RenderQueue
 
 
 class Renderer:

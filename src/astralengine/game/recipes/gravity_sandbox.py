@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from astralengine.ecs.world import ECSWorld
+from astralengine.ecs.core.world import ECSWorld
 from astralengine.game.factories.camera_factory import spawn_follow_camera
 from astralengine.game.factories.chunk_factory import spawn_chunk
 from astralengine.game.factories.player_factory import spawn_player

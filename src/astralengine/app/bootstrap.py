@@ -7,7 +7,7 @@ from astralengine.bootstrap.ecs_bootstrap import create_ecs_world
 from astralengine.bootstrap.render_bootstrap import install_render_pipeline
 from astralengine.bootstrap.resource_bootstrap import install_core_resources
 from astralengine.bootstrap.scene_bootstrap import install_start_scene
-from astralengine.bootstrap.systems_bootstrap import install_core_systems
+from astralengine.bootstrap.system_bootstrap import install_core_systems
 
 
 @dataclass(slots=True)

@@ -1,15 +1,15 @@
 from __future__ import annotations
 
-from astralengine.ecs.system_spec import SystemSpec
-from astralengine.ecs.world import ECSWorld
+from astralengine.ecs.scheduling.system_spec import SystemSpec
+from astralengine.ecs.core.world import ECSWorld
 
 from astralengine.input.frame import system_input_begin_frame
-from astralengine.renderer.renderer import system_execute_render_pipeline
-from astralengine.renderer.submit.submit_camera_system import system_submit_camera
-from astralengine.renderer.submit.submit_chunk_system import system_submit_chunks
-from astralengine.renderer.submit.submit_debug_system import system_submit_debug
-from astralengine.renderer.submit.submit_skybox_system import system_submit_skybox
-from astralengine.renderer.submit.upload_mesh_system import system_upload_chunk_meshes
+from astralengine.rendering.renderer import system_execute_render_pipeline
+from astralengine.rendering.submit.submit_camera_system import system_submit_camera
+from astralengine.rendering.submit.submit_chunk_system import system_submit_chunks
+from astralengine.rendering.submit.submit_debug_system import system_submit_debug
+from astralengine.rendering.submit.submit_skybox_system import system_submit_skybox
+from astralengine.rendering.submit.upload_mesh_system import system_upload_chunk_meshes
 from astralengine.systems.camera.camera_matrices_system import system_update_camera_matrices
 from astralengine.systems.camera.parent_follow_system import system_parent_follow
 from astralengine.systems.physics.gravity_system import system_gravity

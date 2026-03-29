@@ -5,7 +5,7 @@ from astralengine.components.camera_matrices import CameraMatrices
 from astralengine.components.parent_follow import ParentFollow
 from astralengine.components.tags import ActiveCamera, DirtyMatrices
 from astralengine.components.transform import Transform
-from astralengine.ecs.world import ECSWorld
+from astralengine.ecs.core.world import ECSWorld
 from astralengine.game.specs.camera_spec import CameraSpec
 
 

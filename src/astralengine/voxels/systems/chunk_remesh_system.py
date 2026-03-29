@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 
-from astralengine.ecs.query import Query
-from astralengine.ecs.world import ECSWorld
+from astralengine.ecs.query.query import Query
+from astralengine.ecs.core.world import ECSWorld
 from astralengine.components.chunk import Chunk
 from astralengine.components.mesh import Mesh
 from astralengine.components.transform import Transform

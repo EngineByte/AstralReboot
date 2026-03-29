@@ -3,8 +3,8 @@ from __future__ import annotations
 from astralengine.components.parent_follow import ParentFollow
 from astralengine.components.tags import DirtyMatrices
 from astralengine.components.transform import Transform
-from astralengine.ecs.query import Query
-from astralengine.ecs.world import ECSWorld
+from astralengine.ecs.query.query import Query
+from astralengine.ecs.core.world import ECSWorld
 from astralengine.stores.parent_follow_store import ParentFollowStore
 from astralengine.stores.transform_store import TransformStore
 

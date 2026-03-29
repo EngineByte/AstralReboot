@@ -2,18 +2,18 @@ from __future__ import annotations
 
 from astralengine.assets.asset_manager import AssetManager
 from astralengine.assets.loaders.cubemap_loader import CubemapLoader
-from astralengine.ecs.world import ECSWorld
-from astralengine.renderer.backend.gpu_mesh_cache import GpuMeshCache
-from astralengine.renderer.backend.shader_library import ShaderLibrary
-from astralengine.renderer.backend.skybox_geometry import SkyboxGeometry
-from astralengine.renderer.backend.texture_library import TextureLibrary
-from astralengine.renderer.passes.clear_pass import ClearPass
-from astralengine.renderer.passes.debug_pass import DebugPass
-from astralengine.renderer.passes.opaque_mesh_pass import OpaqueMeshPass
-from astralengine.renderer.passes.overlay_pass import OverlayPass
-from astralengine.renderer.passes.skybox_pass import SkyboxPass
-from astralengine.renderer.pipeline.render_pipeline import RenderPipeline
-from astralengine.renderer.renderer import Renderer
+from astralengine.ecs.core.world import ECSWorld
+from astralengine.rendering.backend.gpu_mesh_cache import GpuMeshCache
+from astralengine.rendering.backend.shader_library import ShaderLibrary
+from astralengine.rendering.backend.skybox_geometry import SkyboxGeometry
+from astralengine.rendering.backend.texture_library import TextureLibrary
+from astralengine.rendering.passes.clear_pass import ClearPass
+from astralengine.rendering.passes.debug_pass import DebugPass
+from astralengine.rendering.passes.opaque_mesh_pass import OpaqueMeshPass
+from astralengine.rendering.passes.overlay_pass import OverlayPass
+from astralengine.rendering.passes.skybox_pass import SkyboxPass
+from astralengine.rendering.pipeline.render_pipeline import RenderPipeline
+from astralengine.rendering.renderer import Renderer
 from astralengine.resources.render_settings import RenderSettings
 
 

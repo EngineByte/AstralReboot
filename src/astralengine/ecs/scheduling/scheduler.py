@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import Dict, List, Tuple, TYPE_CHECKING
 
-from astralengine.ecs.system_spec import SystemSpec
+from astralengine.ecs.scheduling.system_spec import SystemSpec
 
 if TYPE_CHECKING:
-    from astralengine.ecs.world import ECSWorld
+    from astralengine.ecs.core.world import ECSWorld
 
 
 class SystemScheduler:
