@@ -1,172 +1,123 @@
-# AstralEngine
-AstralEngine is a simulation and game engine prototype.  This engine was 
-designed to serve as a research and dev platform for large and very-large
-physics simulation, procedural worlds, and advanced/experimental rendering.
+# AstralReboot
 
-This engine accomplishes fast, data-oriented computation with its core 
-Entity Component System (ECS) architecture.  ECS also enables fast and
-scaleable development with the use of supporting resource and asset registry,
-and other UX management tools.  Other supporting features include systems
-scheduling, dense memory management, customizeable rendering pipelines, and
-built-in introspection tools for debugging and future dev support.
+A data-oriented simulation engine and game prototype exploring large-scale voxel worlds, multi-frame physics, and emergent systems.
 
-AstralEngine will feature a unique hybrid system for simulation and rendering.
-This hybrid system is built upon the concept of having a 'duality' of two
-world data structures and seamless/inexpensive methods of mutating both
-datasets simultaneously.
+---
 
-The first world-data structure is the 'voxel', which is a very well adapted
-game-design architecture (think Minecraft and Timberborn) that is well suited
-for hardcore physics modeling and simulation.
+## Overview
 
-The second of the 'duality' of world-data is the Signed Distance Function (SDF).
-While this data and computation model is not new, the adaption of SDF in game
-development is explored to a lesser extent.  Although there are existing high-
-profile examples (A Game About Digging a Hole).  
+AstralReboot is a ground-up engine and game project built to explore a different approach to simulation:
 
-A guiding principle in the design of this dual-data system is the idea that
-different simulation computations are more efficiently done in SDF-realm, and
-others might be better suited with a voxel system.  The same goes with
-drawing/rendering.  Being able to efficiently keep these two datasets synced
-makes this a powerful and stable world-representation.  In reality, one dataset
-(likely the voxels) will serve as a master/true, and the other (SDF) will be
-generated as needed (and will employ caching to improve memory performance).
+* **Voxel worlds at multiple scales** — from small structures to planetary bodies
+* **Hierarchical coordinate frames** — enabling planets, ships, and local systems to coexist
+* **Data-oriented ECS architecture** — optimized for performance and scalability
+* **Real-time physics simulation** — including n-body gravity and future systems
+* **Modular feature design** — systems like gravity, voxels, and heat are independent and composable
 
+The project serves both as:
 
-## Goals
+* a long-term game development effort (**Astral Trail**)
+* a technical platform for experimenting with simulation systems and engine architecture
 
-Primary goals:
+---
 
-- Build a high-performance and highly useable ECS kernal, and upon this kernal:
-- Build a flexible and robust GPU-accelerated rendering system using OpenGL
-- Build an efficient and stable voxel system
-- Develop a fast and cacheable SDF system with full suite of utilities
-- Integrate Voxel and SDF systems into a landmark physics and rendering module
-- Build a complete suite of core physics systems
-- Develop a basic game development environment
-- Complete a MVP demonstration/game that is interactive and fun
+## Design Philosophy
 
-## Core Architectures
+This project prioritizes:
 
-### Entity Component System (ECS) (PROTOTYPE STABLE)
-The ECS kernal has the following core components:
-- Entity Allocator
-- Components, Stores and Component Store Registry
-- Systems and System Registry
-- ECS Command Buffer
-- Data Query
-- Resource Registry
-- System Scheduler
-- ECS Event Bus
+* **Data-oriented design**
+  Cache-efficient ECS, batched updates, and minimal abstraction overhead
 
-Together, these parts come togethers to serve as a data management kernal.
-This is the core skeleton of AstralEngine and provides a data-oriented
-framework that all additional modules of the program will be build upon.
+* **Scalable simulation**
+  Systems designed to handle everything from local interactions to planetary-scale environments
 
-The core principle in ECS architecture is Structure of Arrays (SoA) data
-storage that allows for fast, linear computational runs that maximizes
-data caching and minimizes memory management costs in very large simulations.
+* **Modular features**
+  Engine capabilities are built as independent, installable subsystems
 
-#### Entity Allocator (PROTOTYPE STABLE)
-An 'Entity' is a simple integer label for an empty 'something'.  An Entity
-gains traits and behaviors by attaching 'Components'.  For example,
-an enemy in the game might have an 'Entity' in the ECS programming that is
-simply the integer '302'.  '302' can be literally anything in the programming
-or it can be nothing.  It is not until 'enemy' and 'aggressive' and 
-'targets player' components are attached to '302' that it becomes meaningful.
-And furthermore, the 'meaning' is defined by what 'systems' act on each
-'component'.  This is aligned with a pure vision of 'composition over 
-inheritance' principles in programming.
+* **Engine-first development**
+  Building a strong simulation substrate before layering gameplay
 
-#### Store Registry (PROTOTYPE STABLE)
-A 'Component' is a set of data that defines something about an entity.
-For example, a 'Player-Controlled' component might contain data specifications
-on the move-speed, look-sensitivity, and jump-height that an entity with a 
-'player-controlled' component will have.
+The goal is to enable **emergent, physically grounded worlds**, not just scripted environments.
 
-When an entity is given a component, the component data is stored in a dense
-set of data along with every other component data of the same type.  If an 
-entity is given a 'Position' component, that data will be stored side-by-side
-with every single other 'Position' data that has been created or ever will be
-created. This SoA architecture is key for very fast computational runs.
+---
 
-A Store Registry is included in the ECS architecture, and this allows for fast
-lookups and a highly scaleable architecture.  No matter how many Component
-Stores are registered in the application, the coding complexity does not
-increase, and the registry allows for simplified UX.
+## Current Features
 
-#### System Registry (PROTOTYPE STABLE)
-A 'System' is a function that the ECS uses to process an mutate world data. 
-For example, a 'Movement' system will process all of the 'Velocity' and
-'Position' data within their respective Component Stores, and very quickly apply
-velocity to every entity an update its position.  This is done all at one time,
-for speed and for reduced bugginess.
+* ECS-based simulation core (SoA storage, query system, scheduler)
+* Instanced rendering of large numbers of objects
+* N-body gravitational simulation
+* Modular feature architecture (in progress)
 
-#### Command Buffer (PROTOTYPE STABLE)
-ECS meta-tasks like adding or removing components, entities or applying simulation
-phases are not always needed or desired to be done immediately in a program.  The
-Command Buffer allows for such meta-tasks to be queued and completed when able.
+---
 
-#### Query (PROTOTYPE STABLE)
-A core function of ECS systems is the ability to easily query a very large
-dataset in an inexpensive way. The Query module allows for this to be done in
-a quick and intuitive manner.  Query is used in almost all Systems.
+## In Progress
 
-Query is used by 'asking' the ECS engine to provide an iterable list of entities
-that have a specified set of Components or Tags (no-data components for fast Query)
+* Frame system for independent coordinate spaces (planets, ships)
+* Chunked voxel world with streaming
+* Level-of-detail (LoD) representations
+* GPU-driven culling and rendering optimizations
+* Additional simulation systems (heat, materials, fluids)
 
-#### Resource Registry (PROTOTYPE STABLE)
-Many parts of an application or game will not work well with ECS data architecture.
-Data such as large mesh libraries, Voxel chunks, etc. are more useable as data
-pools that the ECS system stores pointers to.  The resource registry allows an
-interface to arbitrary resources from within the ECS architecture. For example,
-When a complex and large rendering mesh is created, it will be stored in a mesh
-data pool, that will grow very large and be unwieldy to try and index with the ECS 
-system. The ECS system will keep a 'mesh_id' tag that serves as a pointer to that 
-entity's rendering mesh.
+---
 
-Voxel data is also stored in this manner.
+## Project Structure
 
-#### Scheduler (PROTOTYPE STABLE)
-To have many Systems operating on a single sets of Component Store data, this
-inherently introduces possibilities of bugs and unwanted physics quirks.  To
-help control these complexities, the System Scheduler allows the developer to
-define 'phases' and 'orders' that are given to Systems.  These provide a
-framework to define WHEN each system works relative to eachother and the
-overall application/game loop.
-#### Event Bus (TO-DO)
+```
+src/astralengine/
+    ecs/        # Core data-oriented ECS
+    features/   # Modular engine subsystems
+    rendering/  # OpenGL rendering backend
+    bootstrap/  # Application composition
+    game/       # Game-specific logic (Astral Trail)
 
-### Assets (PROTOTYPE IN PROGRESS)
-### Recipes and Factories (PROTOTYPE IN PROGRESS)
-### Rendering (BASIC PIPELINE STABLE)
-### Resources (PROTOTYPE STABLE)
+docs/           # Architecture and design documentation
 
-### Voxels (PROTOTYPE IN PROGRESS)
+tests/          # Validation and integration testing
 
-### SDF (FUTURE)
+```
 
-### Math and Data
+---
 
-### Input and Windowing
+## Getting Started
 
-### Bootstrapping
+```bash
+pip install -e .
+python -m astralengine
+```
 
-### Application
+**Requirements:**
 
-### Debugging
+* Python 3.12+
+* OpenGL-capable GPU
 
-## Physics Simulation Plan
+---
 
-## Testing Plan
+## Status
 
-## Users and Logging
+Active development.
 
-## Project Developement
+This is an experimental engine with evolving architecture. Systems are being built iteratively with a focus on long-term scalability, performance, and clarity of design.
 
-## Requirements
-python 3.x
-pip
+---
 
-## Run
-pip install -r requirements.txt
-python __main__.py
+## Roadmap
+
+* [ ] Frame-based spatial system
+* [ ] Chunked voxel terrain
+* [ ] GPU-based culling and streaming
+* [ ] Advanced simulation systems (heat, materials, fluids)
+* [ ] Playable gameplay prototype (Astral Trail)
+
+---
+
+## About
+
+AstralReboot is a solo development project focused on exploring advanced simulation systems, engine architecture, and data-oriented design.
+
+It serves as both a **technical portfolio** and a **long-term game development effort**.
+
+---
+
+## License
+
+(TBD)

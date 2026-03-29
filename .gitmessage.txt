@@ -1,0 +1,52 @@
+# <type>(<scope>): <short summary>
+#
+# Types:
+#   feat      - new functionality
+#   fix       - bug fix
+#   refactor  - code restructuring (no behavior change)
+#   perf      - performance improvement
+#   docs      - documentation
+#   test      - tests added/changed
+#   chore     - tooling, config, cleanup
+#
+# Scopes (examples):
+#   ecs, ecs(store), ecs(query), ecs(scheduler)
+#   features, features(gravity), features(voxels), features(frames)
+#   rendering, rendering(pipeline)
+#   bootstrap, game
+#
+# Example:
+#   feat(ecs): add command buffer for deferred mutation
+
+# --------------------------------------------------
+# Description (WHY this change is needed)
+# --------------------------------------------------
+# What problem does this solve?
+# What behavior is introduced or changed?
+
+# --------------------------------------------------
+# Implementation Notes (HOW it was done)
+# --------------------------------------------------
+# Key technical details:
+# - data structures changed?
+# - algorithms introduced?
+# - architectural impact?
+# - performance considerations?
+
+# --------------------------------------------------
+# Breaking Changes (optional)
+# --------------------------------------------------
+# Describe any API or behavior changes that require updates elsewhere
+
+# --------------------------------------------------
+# Testing / Validation (optional)
+# --------------------------------------------------
+# How was this tested?
+# - manual testing
+# - unit tests
+# - performance checks
+
+# --------------------------------------------------
+# Notes / Follow-ups (optional)
+# --------------------------------------------------
+# Future work, limitations, or ideas
