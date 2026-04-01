@@ -12,6 +12,16 @@ _INDEX_MASK: int = 0xFFFF_FFFF
 _GEN_SHIFT: int = 32
 
 
+class EntityHandle:
+    @classmethod
+    def pack(cls, index: int, generation: int) -> np.int64:
+        raise NotImplementedError
+    
+    @classmethod
+    def unpack(cls, handle: int) -> tuple[int, int]:
+        raise NotImplementedError
+
+
 def entity_index(eid: EntityId) -> Index:
     return Index(int(eid) & _INDEX_MASK)
 
