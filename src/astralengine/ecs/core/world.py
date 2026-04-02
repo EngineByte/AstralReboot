@@ -8,8 +8,8 @@ from astralengine.ecs.core.entity_allocator import EntityHandle
 from astralengine.ecs.query.query import Query
 from astralengine.ecs.resources.resource_registry import ResourceRegistry
 from astralengine.ecs.scheduling.scheduler import SystemScheduler
+from astralengine.ecs.scheduling.system_spec import SystemSpec
 from astralengine.ecs.storage.store_registry import StoreRegistry
-from astralengine.ecs.storage.tag_store import TagStore
 
 T = TypeVar('T')
 
@@ -32,6 +32,7 @@ class ECSWorld:
     Owns:
     - entity lifecycle
     - component and tag storage mutations
+    - system scheduler
     - deferred mutation buffering
     - resource storage
     - query entry point
@@ -51,6 +52,7 @@ class ECSWorld:
         '_stores',
         '_resources',
         '_commands',
+        '_scheduler',
         '_created_entities',
         '_destroyed_entities'
     )
@@ -62,6 +64,7 @@ class ECSWorld:
         self._stores = StoreRegistry()
         self._resources = ResourceRegistry()
         self._commands = CommandBuffer()
+        self._scheduler: SystemScheduler | None = None
         self._created_entities = 0
         self._destroyed_entities = 0
         
@@ -71,7 +74,7 @@ class ECSWorld:
         '''
         if self._free_indices:
             index = self._free_indices.pop()
-            generate = self._generations[index]
+            generation = self._generations[index]
             self._alive[index] = True
         else:
             index = len(self._generations)
@@ -91,7 +94,7 @@ class ECSWorld:
         the free list.
         '''
         self._require_alive(eid)
-        index, generation = EntityHandle.unpack(eid)
+        index, _ = EntityHandle.unpack(eid)
         
         for store in self._stores.component_stores():
             store.remove(eid)
@@ -114,6 +117,9 @@ class ECSWorld:
         except Exception:
             return False
         
+        if index < 0 or index >= len(self._generations):
+            return False
+        
         return self._alive[index] and self._generations[index] == generation
     
     def entity_count(self) -> int:
@@ -127,21 +133,6 @@ class ECSWorld:
         Number of entity slots allocated.
         '''
         return len(self._alive)
-
-    def register_store(self, component_type: type, store: Any) -> None:
-        self._stores.register(component_type, store)
-
-    def has_store(self, component_type: type) -> bool:
-        return component_type in self._stores._component_stores.keys()
-
-    def store(self, component_type: type) -> Any:
-        return self._stores.get(component_type)
-
-    def store_by_type_name(self, type_name: str) -> Any:
-        for component_type, store in self._stores.items():
-            if getattr(component_type, "__name__", "") == type_name:
-                return store
-        raise KeyError(f"No registered component store named '{type_name}'")
 
     def add_component(self, eid: int, component: object) -> None:
         '''
@@ -201,18 +192,6 @@ class ECSWorld:
         
         return store.get(eid)
 
-    def register_tag_store(self, tag_type: type) -> None:
-        self._tag_stores[tag_type] = TagStore(entity_capacity=self.entity_capacity)
-
-    def has_tag_store(self, tag_type: type) -> bool:
-        return tag_type in self._tag_stores
-
-    def tag_store(self, tag_type: type) -> TagStore:
-        try:
-            return self._tag_stores[tag_type]
-        except KeyError as exc:
-            raise KeyError(f"No registered tag store for {tag_type}") from exc
-
     def add_tag(self, eid: int, tag_type: type) -> None:
         '''
         Add a tag to entity immediately.
@@ -241,38 +220,6 @@ class ECSWorld:
         store = self._stores.get_tag_store(tag_type)
         
         return store is not None and store.has(eid)
-
-    def remove_all_components(self, eid: int) -> None:
-        for store in self._stores.values():
-            store.remove(eid)
-
-    def remove_all_tags(self, eid: int) -> None:
-        for tag_store in self._tag_stores.values():
-            tag_store.remove(eid)
-            
-    def get_all_components(self, eid: int) -> dict[type, object]:
-        '''
-        Return all components currently attached to an entity.
-        '''
-        self._require_alive(eid)
-        out: dict[type, object] = {}
-        for component_type, store in self._stores._component_store_items():
-            if store.has(eid):
-                out[component_type] = store.get(eid)
-                
-        return out
-    
-    def get_all_tags(self, eid: int) -> tuple[type, ...]:
-        '''
-        Return all tags currently attached to an entity.
-        '''
-        self._require_alive(eid)
-        out: tuple[type] = ()
-        for tag_type, store in self._stores._tag_store_items():
-            if store.has(eid):
-                out.append(tag_type)
-                
-        return tuple(out)
     
     def entity_dump(self, eid: int) -> dict[str, Any]:
         '''
@@ -283,19 +230,45 @@ class ECSWorld:
             'entity': eid,
             'alive': True,
             'components': {
-                component_type.__name__: component for component_type, component in self.get_all_components(eid).items()
+                component_type.__name__: component 
+                for component_type, component 
+                in self.entity_components(eid).items()
             },
-            'tags': [tag_type.__name__ for tag_type in self.get_all_tags(eid)]
+            'tags': [tag_type.__name__ for tag_type in self.entity_tags(eid)]
         }
 
     def run_frame(self, dt: float) -> None:
-        self.dt_seconds = float(dt)
-        self.scheduler.run(self)
+        '''
+        Advance ECS by one simulation frame. This ticks the system scheduler.
 
-        if self.command_buffer is not None:
-            self.command_buffer.flush()
+        Delegates phase execution to the scheduler. Deferred structure
+        mutations are to be committed at scheduler-defined barriers and
+        not automatically by ECSWorld directly.
+        '''
+        self._require_scheduler()
+        self._scheduler.run_frame(self, dt)
 
-    def stats(self) -> dict[str, Any]:
+    def run_phase(self, phase: str, dt: float) -> None:
+        '''
+        Run a single scheduler phase.
+
+        Debugging and testing tool for controlled execution.
+        To be used in place of run_frame().
+        '''
+        self._require_scheduler()
+        self._scheduler.run_phase(self, phase, dt)
+
+    def add_system(self, spec: SystemSpec) -> None:
+        '''
+        Register a system to the system scheduler.
+        '''
+        self._require_scheduler()
+        self._scheduler.add_system(spec)
+
+    def stats(self) -> WorldStats:
+        '''
+        Returns a compact snapshot of runtime statistics.
+        '''
         return WorldStats(
             created_entities=self._created_entities,
             destroyed_entities=self._destroyed_entities,
@@ -307,13 +280,16 @@ class ECSWorld:
         )
         
     def summary(self) -> str:
+        '''
+        Returns a short text summary of ECS world state.
+        '''
         stats = self.stats()
         return (
             'world('
             f'alive={stats.alive_entities}, '
             f'capacity={self.capacity()}, '
             f'created={stats.created_entities}, '
-            f'destroyed={stats.destroyed_entites}, '
+            f'destroyed={stats.destroyed_entities}, '
             f'component_stores={stats.component_store_count}, '
             f'tag_stores={stats.tag_store_count}, '
             f'resources={stats.resource_count}, '
@@ -359,7 +335,7 @@ class ECSWorld:
         '''
         return self._commands.defer_create()
     
-    def apply_commands(self) -> None:
+    def apply_commands(self) -> dict[int, int]:
         '''
         Apply all queued ECS mutations.
         
@@ -406,7 +382,8 @@ class ECSWorld:
         *, 
         with_tags=(), 
         without_tags=()
-    ) -> Any:
+    ) -> Query:
+        
         '''
         Create a query object for given component types and flags.
         
@@ -421,6 +398,9 @@ class ECSWorld:
         )
     
     def entity_components(self, eid: int) -> dict[type, object]:
+        '''
+        Returns all components currently owned by the entity.
+        '''
         self._require_alive(eid)
         out: dict[type, object] = {}
         for component_type, store in self._stores.component_store_items():
@@ -430,6 +410,9 @@ class ECSWorld:
         return out
     
     def entity_tags(self, eid: int) -> tuple[type, ...]:
+        '''
+        Returns all tags currently attached to the entity.
+        '''
         self._require_alive(eid)
         out: list[type] = []
         for tag_type, store in self._stores.tag_store_items():
@@ -437,19 +420,6 @@ class ECSWorld:
                 out.append(tag_type)
                 
         return tuple(out)
-    
-    def entity_dump(self, eid: int) -> dict[str, Any]:
-        self._require_alive(eid)
-        return {
-            'entity': eid,
-            'alive': True,
-            'components': {
-                component_type.__name__: component for component_type, component in self.get_all_components(eid).items()},
-            'tags': [tag_type.__name__ for tag_type in self.get_all_tags(eid)]
-        }
-    
-    def summary(self) -> str:
-        raise NotImplementedError
     
     def add_resource(self, resource: object, *, resource_type: type | None = None) -> None:
         '''
@@ -484,11 +454,26 @@ class ECSWorld:
         Removes the resource from the registry.
         '''
         self._resources.remove(resource_type)
+
+    def bind_scheduler(self, scheduler: SystemScheduler) -> None:
+        '''
+        Binds a scheduler to this ECSWorld to control simulation frame and phase execution.
+        '''
+        self._scheduler = scheduler
+
+    def has_scheduler(self) -> bool:
+        return self._scheduler is not None
         
     def _require_alive(self, eid: int) -> None:
-        ''''''
+        '''
+        Raises when entity is dead or handle is invalid.
+        '''
         if not self.is_alive(eid):
             raise KeyError(f'Invalid or dead entity handle: {eid}')
+        
+    def _require_scheduler(self) -> None:
+        if self._scheduler is None:
+            raise RuntimeError('No Scheduler bound to ECS.')
         
     @property
     def stores(self) -> StoreRegistry:
@@ -502,7 +487,22 @@ class ECSWorld:
     def commands(self) -> CommandBuffer:
         return self._commands
     
-    def iter_alive_entiteis(self) -> Iterable[int]:
+    @property
+    def scheduler(self) -> SystemScheduler:
+        '''
+        Return the ECS system scheduler associated with this.
+
+        Raises:
+            RuntimeError if no scheduler is bound to the ECSWorld.
+        '''
+        self._require_scheduler()
+        return self._scheduler
+    
+    @property
+    def frame_index(self) -> int:
+        return self._scheduler.frame_index
+    
+    def iter_alive_entities(self) -> Iterable[int]:
         for index, alive in enumerate(self._alive):
             if alive: 
                 yield EntityHandle.pack(index=index, generation=self._generations[index])
