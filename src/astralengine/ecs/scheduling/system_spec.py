@@ -9,16 +9,32 @@ if TYPE_CHECKING:
 SystemFn = Callable[['ECSWorld', float], None]
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(slots=True)
 class SystemSpec:
+    '''
+    Declarative descrition of a System as used by ECS System Scheduler.
+
+    A system is a callable function that operates on ECSWorld entities
+    within a specified phase step.  The spec will determine:
+        - Which sim phase the system operates within
+        - enable/disable
+        - system run frequency
+        - dependencies and order restraints as related to other systems
+    '''
+    name: str
     func: SystemFn
-    phase: str = 'update'
-    order: int = 0
-    name: Optional[str] = None
+    phase: str
     enabled: bool = True
+    run_every: int = 1
+    before: tuple[str, ...] = field(default_factory=tuple)
+    after: tuple[str, ...] = field(default_factory=tuple)
 
-    before: Sequence[str] = field(default_factory=tuple)
-    after: Sequence[str] = field(default_factory=tuple)
-
-    def system_name(self) -> str:
-        return self.name or getattr(self.func, '__name__', 'system')
+    def __post_init__(self) -> None:
+        if not self.name:
+            raise ValueError('SystemSpec.name must be non-empty string.')
+        
+        if not self.phase:
+            raise ValueError('SystemSpec.phase must be non-empty string.')
+        
+        if not self.run_every < 1:
+            raise ValueError('SystemSpec.run_every must be >= 1.')
