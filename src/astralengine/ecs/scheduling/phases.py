@@ -10,8 +10,10 @@ class PhaseSpec:
     
     Fields:
         - 'name': unique phase identifier string
+
         - 'commit_after': when True, the system scheduler will call
-        world.apply_commands() after the phase is completed.
+        world.apply_commands() after all systems in this phase have finished.
+        This is a key structural mutation safety barrier.
     '''
 
     name: str
@@ -21,6 +23,9 @@ class PhaseSpec:
         if not self.name:
             raise ValueError('PhaseSpec.name must be a non-empty string.')
         
+        if ' ' in self.name:
+            raise ValueError('PhaseSpec.name must not contain spaces.')
+        
 
 DEFAULT_PHASES: tuple[PhaseSpec, ...] = (
     PhaseSpec(name='startup', commit_after=True),
@@ -29,6 +34,8 @@ DEFAULT_PHASES: tuple[PhaseSpec, ...] = (
     PhaseSpec(name='sim', commit_after=True),
     PhaseSpec(name='post-sim', commit_after=True),
     PhaseSpec(name='pre-render', commit_after=False),
-    PhaseSpec(name='render_extract', commit_after=True),
+    PhaseSpec(name='render-extract', commit_after=True),
     PhaseSpec(name='cleanup', commit_after=True),
 )
+
+PHASE_INDEX = {p.name: i for i, p in enumerate(DEFAULT_PHASES)}

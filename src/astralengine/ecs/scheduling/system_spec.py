@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Callable, Optional, Sequence, Any, TYPE_CHECKING
+from typing import Callable, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from astralengine.ecs.core.world import ECSWorld
@@ -12,7 +12,7 @@ SystemFn = Callable[['ECSWorld', float], None]
 @dataclass(slots=True)
 class SystemSpec:
     '''
-    Declarative descrition of a System as used by ECS System Scheduler.
+    Declarative description of a System as used by ECS System Scheduler.
 
     A system is a callable function that operates on ECSWorld entities
     within a specified phase step.  The spec will determine:
@@ -22,7 +22,7 @@ class SystemSpec:
         - dependencies and order restraints as related to other systems
     '''
     name: str
-    func: SystemFn
+    fn: SystemFn
     phase: str
     enabled: bool = True
     run_every: int = 1
@@ -36,5 +36,5 @@ class SystemSpec:
         if not self.phase:
             raise ValueError('SystemSpec.phase must be non-empty string.')
         
-        if not self.run_every < 1:
+        if self.run_every < 1:
             raise ValueError('SystemSpec.run_every must be >= 1.')
