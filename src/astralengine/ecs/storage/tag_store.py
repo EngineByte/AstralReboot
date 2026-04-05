@@ -64,30 +64,36 @@ class TagStore:
     
     def has(self, entity: int) -> bool:
         '''
-        
+        True if the entity currently has this tag.
         '''
+        
+        return entity in self._sparse
     
     def entities(self) -> tuple[int, ...]:
         '''
-        
+        Returns all tagged entities.
         '''
+        
+        return tuple(self._entities)
     
     def clear(self) -> None:
         '''
-        
+        Removes all tag assignments.
         '''
+        
+        self._entities.clear()
+        self._sparse.clear()
     
     def __len__(self) -> int:
         '''
-        
-        '''
-    
-    def __contains__(self, entity: int) -> bool:
+        Returns the number of entities holding this flag.
         '''
         
-        '''
+        return len(self._entities)
     
     def summary(self) -> str:
         '''
-        
+        Returns a compact readable summary.
         '''
+        
+        return f'TagStore(size={len(self._entities)})'
