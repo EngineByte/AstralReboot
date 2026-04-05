@@ -4,26 +4,198 @@ from typing import Any, Dict, Iterator, List, Sequence, Tuple, Type
 
 from astralengine.ecs.core.entity_allocator import EntityId
 from astralengine.ecs.storage.tag_store import TagStore
+from astralengine.ecs.storage.dense_store import DenseStore
 
 
 class StoreRegistry:
+    '''
+    Registry for ECS component stores and tag stores.
+    
+    Responsibility:
+        - create and retrieve component stores by component type
+        - create and retrieve tag stores by tag type
+        - expose store iteration for world-level inspection and cleanup
+        - report basic registry stats
+    '''
+    
+    __slots__ = (
+        '_component_stores',
+        '_tag_stores'
+    )
+    
     def __init__(self) -> None:
-        self._component_stores: Dict[Type[Any], Any] = {}
+        self._component_stores: dict[type, DenseStore] = {}
         self._tag_stores: Dict[Type[Any], TagStore] = {}
-
-    def register(self, typ: Type[Any], store: Any) -> None:
-        if isinstance(store, TagStore):
-            self._tag_stores[typ] = store
-            return
-        self._component_stores[typ] = store
-
-    def get(self, typ: Type[Any]) -> Any:
-        if typ in self._component_stores:
-            return self._component_stores[typ]
-        if typ in self._tag_stores:
-            return self._tag_stores[typ]
-        raise KeyError(f'No store registered for type: {typ}')
-
+    
+    def register_component_store(self, component_type: type, store: DenseStore) -> None:
+        '''
+        Register a component store for a specific component type
+        '''
+        
+        if component_type in self._component_stores:
+            raise ValueError(f'Component store already registered for {component_type.__name__}.')
+        
+        self._component_stores[component_type] = store
+        
+    def get_component_store(self, component_type: type) -> DenseStore:
+        '''
+        Returns the component store for the specified type, or None if type not registered.
+        '''
+        
+        return self._component_stores.get(component_type)
+    
+    def get_or_create_component_store(self, component_type: type) -> DenseStore:
+        '''
+        Returns the component store for the specified type, or creates and registers on if needed.
+        '''
+        
+        store = self._component_stores.get(component_type)
+        
+        if store is None:
+            store = DenseStore()
+            
+        self._component_stores[component_type] = store
+        
+        return store
+    
+    def has_component_store(self, component_type: type) -> bool:
+        '''
+        True if component store is registered for the specified type.
+        '''
+        
+        return component_type in self._component_stores
+    
+    def remove_component_store(self, component_type: type) -> None:
+        '''
+        De-register and remove a component store.
+        
+        Raises:
+            KeyError: if not store is registered for component type.
+        '''
+        
+        try:
+            del self._component_stores[component_type]
+        except KeyError as exc:
+            raise KeyError(f'No component store registered for {component_type.__name__}.') from exc    
+    
+    def component_stores(self) -> tuple[DenseStore, ...]:
+        '''
+        Returns all registered component stores.
+        '''
+        
+        return tuple(self._component_stores.values())
+    
+    def component_store_items(self) -> tuple[tuple[type, DenseStore], ...]:
+        '''
+        Returns (component_type, store) pairs for all component stores.
+        '''
+        
+        return tuple(self._component_stores.items())
+    
+    def component_store_count(self) -> int:
+        '''
+        Return the number of registered component stores.
+        '''
+        return len(self._component_stores)
+    
+    def register_tag_store(self, tag_type: type, store: TagStore) -> None:
+        '''
+        Register a tag store for a specific tag type
+        '''
+        
+        if tag_type in self._tag_stores:
+            raise ValueError(f'Tag store already registered for {tag_type.__name__}.')
+        
+        self._tag_stores[tag_type] = store
+        
+    def get_tag_store(self, tag_type: type) -> TagStore:
+        '''
+        Returns the tag store for the specified type, or None if type not registered.
+        '''
+        
+        return self._tag_stores.get(tag_type)
+    
+    def get_or_create_tag_store(self, tag_type: type) -> TagStore:
+        '''
+        Returns the tag store for the specified type, or creates and registers one if needed.
+        '''
+        
+        store = self._tag_stores.get(tag_type)
+        
+        if store is None:
+            store = TagStore()
+            
+        self._tag_stores[tag_type] = store
+        
+        return store
+    
+    def has_tag_store(self, tag_type: type) -> bool:
+        '''
+        True if tag store is registered for the specified type.
+        '''
+        
+        return tag_type in self._tag_stores
+    
+    def remove_tag_store(self, tag_type: type) -> None:
+        '''
+        De-register and remove a tag store.
+        
+        Raises:
+            KeyError: if no store is registered for tag type.
+        '''
+        
+        try:
+            del self._tag_stores[tag_type]
+        except KeyError as exc:
+            raise KeyError(f'No tag store registered for {tag_type.__name__}.') from exc    
+    
+    def tag_stores(self) -> tuple[TagStore, ...]:
+        '''
+        Returns all registered tag stores.
+        '''
+        
+        return tuple(self._tag_stores.values())
+    
+    def tag_store_items(self) -> tuple[tuple[type, TagStore], ...]:
+        '''
+        Returns (tag_type, store) pairs for all tag stores.
+        '''
+        
+        return tuple(self._tag_stores.items())
+    
+    def tag_store_count(self) -> int:
+        '''
+        Return the number of registered tag stores.
+        '''
+        return len(self._tag_stores)
+    
+    def clear(self) -> None:
+        '''
+        Removes all registered component and tag stores from the registry.
+        '''
+        
+        self._component_stores.clear()
+        self._tag_stores.clear()
+        
+    def is_empty(self) -> bool:
+        '''
+        True if no component or tag stores are registered.
+        '''
+        
+        return not self._component_stores and not self._tag_stores
+    
+    def summary(self) -> str:
+        '''
+        Returns a compact readable summary of registry state.
+        '''
+        
+        return (
+            'StoreRegistry('
+            f'component_stores={len(self._component_stores)}, '
+            f'tag_stores={len(self._tag_stores)}'
+            ')'
+        )
+    
     def add_component(self, eid: EntityId, component: Any) -> None:
         typ = type(component)
         store = self._component_stores.get(typ)

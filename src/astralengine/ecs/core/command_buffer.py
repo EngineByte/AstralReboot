@@ -82,36 +82,45 @@ class CommandBuffer:
         return placeholder
 
         
-    def defer_destroy(self, entity: int) -> int:
+    def defer_destroy(self, entity: int) -> None:
         '''
         Queue entity destruction.
         '''
 
         self._destroy_entities.append(entity)
         
-    def defer_add_component(self, entity: int, component: object) -> int:
+    def defer_add_component(self, entity: int, component: object) -> None:
         '''
         Queue component addition.
         '''
         
         self._add_componenets.append(
-            AddComponentCommand(entity=entity, component=)
+            AddComponentCommand(entity=entity, component=component)
         )
         
-    def defer_remove_component(self) -> int:
+    def defer_remove_component(self, entity: int, component_type: type) -> None:
         '''
+        Queue component removal.
+        '''
+        self._remove_components.append(
+            RemoveComponentCommand(entity=entity, component_type=component_type)
+        )
         
+    def defer_add_tag(self, entity: int, tag_type: type) -> None:
         '''
+        Queue tag addition.
+        '''
+        self._add_tags.append(
+            AddTagCommand(entity=entity, tag_type=tag_type)
+        )
         
-    def defer_add_tag(self) -> int:
+    def defer_remove_tag(self, entity: int, tag_type: type) -> int:
         '''
-        
+        Queue tag removal.
         '''
-        
-    def defer_remove_tag(self) -> int:
-        '''
-        
-        '''
+        self._remove_tags.append(
+            RemoveTagCommand(entity=entity, tag_type=tag_type)
+        )
 
     def has_pending(self) -> bool:
         '''
@@ -180,6 +189,7 @@ class CommandBuffer:
         '''
         Clear all queued commands and reset placeholder allocation.
         '''
+        
         self._next_placeholder = -1
         self._create_entities.clear()
         self._destroy_entities.clear()
@@ -215,6 +225,7 @@ class CommandBuffer:
         '''
         Return queued component-add as (entity, component_type) pairs.
         '''
+        
         return tuple(
             (cmd.entity, cmd.tag_type)
             for cmd in self._add_components
@@ -252,27 +263,3 @@ class CommandBuffer:
             (cmd.entity, cmd.tag_type)
             for cmd in self._remove_tags
         )
-
-    def custom(self, fn: Callable[[], None], *, label: str = "") -> None:
-        self.queue(fn, label=label or "custom")
-
-    def flush(self) -> None:
-        """
-        Execute all queued commands in FIFO order.
-
-        Commands queued during flush are deferred to the next pass through the
-        while-loop, allowing chained command generation in a controlled way.
-        """
-        if self._is_flushing:
-            raise RuntimeError("CommandBuffer.flush() called re-entrantly.")
-
-        self._is_flushing = True
-        try:
-            while self._commands:
-                batch = self._commands
-                self._commands = []
-
-                for cmd in batch:
-                    cmd.fn()
-        finally:
-            self._is_flushing = False
