@@ -4,7 +4,7 @@ from typing import Any, TypeVar, Iterable
 from dataclasses import dataclass
 
 from astralengine.ecs.core.command_buffer import CommandBuffer
-from astralengine.ecs.core.entity_allocator import EntityHandle
+from astralengine.ecs.core.entity import EntityHandle
 from astralengine.ecs.query.query import Query
 from astralengine.ecs.resources.resource_registry import ResourceRegistry
 from astralengine.ecs.scheduling.scheduler import SystemScheduler

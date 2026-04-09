@@ -5,7 +5,7 @@ from typing import Any, Dict
 import numpy as np
 import numpy.typing as npt
 
-from astralengine.ecs.core.entity_allocator import EntityId, entity_index
+from astralengine.ecs.core.entity import EntityId, entity_index
 
 
 class TagStore:
@@ -16,7 +16,7 @@ class TagStore:
     
     Structure:
         entities: [entityhandle, entityhandle, ...]
-        sparse: {entity_id -> dense_index}
+        sparse: {entity_id -> dense_index}s
         
     Properties:
         - O(1) add

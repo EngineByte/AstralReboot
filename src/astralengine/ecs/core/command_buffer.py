@@ -4,7 +4,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
 
-from astralengine.ecs.core.entity_allocator import EntityId
+from astralengine.ecs.core.entity import EntityId
 
 
 @dataclass(frozen=True, slots=True)

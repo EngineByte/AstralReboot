@@ -4,7 +4,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass
 from typing import Any
 
-from astralengine.ecs.core.entity_allocator import EntityId
+from astralengine.ecs.core.entity import EntityId
 
 
 @dataclass(frozen=True, slots=True)
@@ -88,8 +88,11 @@ class Query(Iterator[tuple[Any, ...]]):
                     matched = False
                     break
                 
+                components.append(store.get(entity))
+                
             if matched:
                 yield entity, tuple(components)
+
     def _select_driver_store(self):
         '''
         Chooses the smallest required component store to use as the query-driver.

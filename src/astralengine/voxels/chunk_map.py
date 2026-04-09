@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Iterator
 
-from astralengine.ecs.core.entity_allocator import EntityId
+from astralengine.ecs.core.entity import EntityId
 
 
 ChunkCoord = tuple[int, int, int]

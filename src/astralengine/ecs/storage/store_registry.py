@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Iterator, List, Sequence, Tuple, Type
 
-from astralengine.ecs.core.entity_allocator import EntityId
+from astralengine.ecs.core.entity import EntityId
 from astralengine.ecs.storage.tag_store import TagStore
 from astralengine.ecs.storage.dense_store import DenseStore
 

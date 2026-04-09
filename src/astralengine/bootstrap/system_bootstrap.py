@@ -24,6 +24,28 @@ from astralengine.systems.streaming.chunk_activation_system import system_chunk_
 from astralengine.systems.streaming.chunk_lod_system import system_chunk_lod
 
 
+def system_ecs_heartbeat(world: ECSWorld, dt: float) -> None:
+    '''
+    Minimum placeholder system.
+    '''
+    _ = world
+    _ = dt
+
+def install_core_ecs_systems(world: ECSWorld) -> None:
+    '''
+    Install only minimum required systems for the ECS runtime.
+
+    No gameplay, physics, rendering systems.
+    '''
+
+    world.scheduler.add_system(
+        SystemSpec(
+            name='ecs-heartbeat',
+            fn=system_ecs_heartbeat,
+            phase='pre-sim'
+        )
+    )
+
 def install_core_systems(world: ECSWorld) -> None:
     scheduler = world.scheduler
 

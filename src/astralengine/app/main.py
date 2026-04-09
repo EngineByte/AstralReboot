@@ -1,17 +1,9 @@
-from astralengine.app.bootstrap import create_application
-#from astralengine.app.logging_setup import configure_logging
+from __future__ import annotations
 
-def main() -> int:
-    '''
-    Main application entry.
-    
-    Returns:
-        Process exit code.
-    '''
-    
-    #configure_logging()
-    
-    app = create_application()
-    app.run()
-    
-    return 0
+from astralengine.app.startup import initialize_application
+from astralengine.bootstrap.application import run_application
+
+
+def main() -> None:
+    initialize_application()
+    run_application()
