@@ -37,41 +37,152 @@ def _split_query_types(world: Any, query_types: tuple[type, ...]) -> QuerySpec:
 
 
 class Query(Iterator[tuple[Any, ...]]):
-    """
-    Iterate entities matching a component/tag query.
+    '''
+    ECS query over required component types with flag filters.
+    
+    A Query selects entities with:
+        - all required component types
+        - specified flag conditions
+    
+    Iteration yeilds:
+        - (entityhandle, (component_0, component_1, ...))
+        
+    Note:
+        - Query chooses the smallest required component store as the driver.
+    '''
+    
+    __slots__ = (
+        '_world',
+        '_component_types',
+        '_with_tags',
+        '_without_tags',
+    )
 
-    Yield format:
-        (eid, dense_i_component0, dense_i_component1, ...)
+    def __init__(self, 
+        *, 
+        world, 
+        component_types: tuple[type, ...] = (),
+        with_tags: tuple[type, ...] = (),
+        without_tags: tuple[type, ...] = ()
+    ) -> None:
+        
+        self._world = world
+        self._component_types = component_types
+        self._with_tags = with_tags
+        self._without_tags = without_tags
+        
+    @property
+    def component_types(self) -> tuple[type, ...]:
+        return self._component_types
 
-    Important:
-    - only component-backed types contribute dense indices
-    - tag types are membership filters only
-    """
+    @property
+    def with_tags(self) -> tuple[type, ...]:
+        return self._with_tags
+    
+    @property
+    def without_tags(self) -> tuple[type, ...]:
+        return self._without_tags
+    
+    def __iter__(self) -> Iterator[tuple[int, tuple[object, ...]]]:
+        '''
+        Iterate matching entities and their required components.
+        '''
+        if not self._component_types:
+            raise ValueError('Query requires at least one component type.')
+        
+        driver_store = self._select_driver_store()
+        
+        if driver_store is None:
+            return
+            yield
+            
+        for entity in driver_store.entities():
+            if not self._matches_tags(entity):
+                continue
+            
+            components: list[object] = []
+            
+            matched = True
+            
+            for component_type in self._component_types:
+                store = self._world.stores.get_component_store(component_type)
+                
+                if store is None or not store.has(entity):
+                    matched = False
+                    break
+                
+            if matched:
+                yield entity, tuple(components)
+    def _select_driver_store(self):
+        '''
+        Chooses the smallest required component store to use as the query-driver.
+        '''
+        
+        stores = []
+        
+        for component_type in self._component_types:
+            store = self._world.stores.get_component_store(component_type)
+            
+            if store is None:
+                return None
+            
+            stores.append(store)
+            
+        return min(stores, key=len)
+    
+    def _matches_tags(self, entity: int) -> bool:
+        '''
+        Return True if the entity satisfies tag filters.
+        '''            
+        
+        for tag_type in self._with_tags:
+            store = self._world.stores.get_tag_store(tag_type)
+            
+            if store is None or not store.has(entity):
+                return False
+            
+        for tag_type in self._without_tags:
+            store = self._world.stores.get_tag_store(tag_type)
+            
+            if store is not None and store.has(entity):
+                return False
+            
+        return True
+    
+    def count(self) -> int:
+        '''
+        Count matching entities by iterating the query.
+        '''
+        
+        return sum(1 for _ in self)
+    
+    def first(self) -> tuple[int, tuple[object, ...]] | None:
+        '''
+        Return the first match, or None if there are no matches.
+        '''
+        
+        for item in self:
+            return item
+        
+        return None
+    
+    def summary(self) -> str:
+        '''
+        Returns a brief readable summary of the query definition.
+        '''
 
-    def __init__(self, world: Any, query_types: tuple[type, ...]) -> None:
-        self.world = world
-        self.query_types = tuple(query_types)
-
-        spec = _split_query_types(world, self.query_types)
-        self.component_types = spec.component_types
-        self.tag_types = spec.tag_types
-
-        if not self.component_types:
-            raise ValueError(
-                "Query requires at least one component-backed type as a driving store."
-            )
-
-        self.component_stores = [world.store(t) for t in self.component_types]
-        self.tag_stores = [world.tag_store(t) for t in self.tag_types]
-
-        # Drive iteration from the smallest component store for efficiency
-        self._driver_store = min(self.component_stores, key=lambda s: s.dense_size())
-        self._driver_eids = self._driver_store.dense_eids()
-        self._cursor = 0
-
-    def __iter__(self) -> "Query":
-        return self
-
+        component_names = [t.__name__ for t in self._component_types]
+        with_tag_names = [t.__name__ for t in self._with_tags]
+        without_tag_names = [t.__name__ for t in self._without_tags]
+        
+        return (
+            'Query('
+            f'components={component_names}, '
+            f'with_tags={with_tag_names}, '
+            f'without_tags={without_tag_names}'
+            ')'
+        )
+    
     def __next__(self) -> tuple[Any, ...]:
         while self._cursor < len(self._driver_eids):
             eid = EntityId(self._driver_eids[self._cursor])
