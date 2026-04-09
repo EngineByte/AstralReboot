@@ -52,7 +52,7 @@ class CommandBuffer:
         '_next_placeholder',
         '_create_entities',
         '_destroy_entities',
-        '_add_componenets',
+        '_add_components',
         '_remove_components',
         '_add_tags',
         '_remove_tags'
@@ -197,12 +197,6 @@ class CommandBuffer:
         self._remove_components.clear()
         self._add_tags.clear()
         self._remove_tags.clear()
-
-    def stats(self) -> dict[str, Any]:
-        return {
-            "queued_commands": len(self._commands),
-            "is_flushing": self._is_flushing,
-        }
 
     @property
     def create_entities(self) -> tuple[int, ...]:
