@@ -13,29 +13,6 @@ class QuerySpec:
     tag_types: tuple[type, ...]
 
 
-def _split_query_types(world: Any, query_types: tuple[type, ...]) -> QuerySpec:
-    """
-    Split requested query types into component-backed types and tag-backed types.
-    """
-    component_types: list[type] = []
-    tag_types: list[type] = []
-
-    for typ in query_types:
-        if world.has_store(typ):
-            component_types.append(typ)
-        elif world.has_tag_store(typ):
-            tag_types.append(typ)
-        else:
-            raise KeyError(
-                f"Query type is neither a registered component store nor tag store: {typ}"
-            )
-
-    return QuerySpec(
-        component_types=tuple(component_types),
-        tag_types=tuple(tag_types),
-    )
-
-
 class Query(Iterator[tuple[Any, ...]]):
     '''
     ECS query over required component types with flag filters.
@@ -182,35 +159,3 @@ class Query(Iterator[tuple[Any, ...]]):
             f'without_tags={without_tag_names}'
             ')'
         )
-    
-    def __next__(self) -> tuple[Any, ...]:
-        while self._cursor < len(self._driver_eids):
-            eid = EntityId(self._driver_eids[self._cursor])
-            self._cursor += 1
-
-            # Check all component stores
-            dense_indices: list[int] = []
-            component_ok = True
-
-            for store in self.component_stores:
-                if not store.has(eid):
-                    component_ok = False
-                    break
-                dense_indices.append(store.dense_index(eid))
-
-            if not component_ok:
-                continue
-
-            # Check all tag stores
-            tag_ok = True
-            for tag_store in self.tag_stores:
-                if not tag_store.has(eid):
-                    tag_ok = False
-                    break
-
-            if not tag_ok:
-                continue
-
-            return (eid, *dense_indices)
-
-        raise StopIteration
