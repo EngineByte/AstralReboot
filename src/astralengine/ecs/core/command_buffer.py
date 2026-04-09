@@ -114,7 +114,7 @@ class CommandBuffer:
             AddTagCommand(entity=entity, tag_type=tag_type)
         )
         
-    def defer_remove_tag(self, entity: int, tag_type: type) -> int:
+    def defer_remove_tag(self, entity: int, tag_type: type) -> None:
         '''
         Queue tag removal.
         '''
@@ -221,7 +221,7 @@ class CommandBuffer:
         '''
         
         return tuple(
-            (cmd.entity, cmd.tag_type)
+            (cmd.entity, cmd.component_type)
             for cmd in self._add_components
         )
 
@@ -232,7 +232,7 @@ class CommandBuffer:
         '''
 
         return tuple(
-            (cmd.entity, cmd.tag_type)
+            (cmd.entity, cmd.component_type)
             for cmd in self._remove_components
         )
 
