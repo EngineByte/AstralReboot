@@ -7,7 +7,8 @@ import pytest
 pytestmark = [
     pytest.mark.ecs, 
     pytest.mark.unit,
-    pytest.mark.resource]
+    pytest.mark.resource
+]
 
 
 @dataclass

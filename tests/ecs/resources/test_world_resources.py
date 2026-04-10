@@ -158,8 +158,8 @@ def test_world_summary_includes_resource_count(world) -> None:
     assert "resources=1" in summary_after
 
 def test_add_none_resource_raises(world) -> None:
-    with pytest.raises(Exception):
-        world.add_resource(None)  # type: ignore[arg-type]
+    with pytest.raises(ValueError, match='cannot be None'):
+        world.add_resource(None)
 
 def test_remove_then_readd_resource(world) -> None:
     time1 = Time(0.016)
@@ -180,3 +180,40 @@ def test_repeated_add_remove_cycles_are_consistent(world) -> None:
 
         world.remove_resource(Time)
         assert not world.has_resource(Time)
+
+def test_resources_property_exposes_registry(world) -> None:
+    time = Time(0.016)
+
+    world.resources.add(time)
+
+    assert world.get_resource(Time) is time        
+
+def test_replacing_resource_does_not_increase_resource_count(world) -> None:
+    world.add_resource(Time(0.016))
+    assert world.stats().resource_count == 1
+
+    world.add_resource(Time(0.032))
+    assert world.stats().resource_count == 1
+
+def test_get_required_resource_returns_exact_instance(world) -> None:
+    time = Time(0.016)
+    world.add_resource(time)
+
+    assert world.get_required_resource(Time) is time    
+
+def test_world_summary_updates_after_resource_removal(world) -> None:
+    world.add_resource(Time(0.016))
+    assert "resources=1" in world.summary()
+
+    world.remove_resource(Time)
+    assert "resources=0" in world.summary()
+
+def test_removed_resource_is_fully_absent(world) -> None:
+    world.add_resource(Time(0.016))
+    world.remove_resource(Time)
+
+    assert world.has_resource(Time) is False
+    assert world.get_resource(Time) is None
+    
+    with pytest.raises(KeyError):
+        world.get_required_resource(Time)    
