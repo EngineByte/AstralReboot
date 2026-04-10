@@ -30,11 +30,32 @@ class SystemSpec:
     after: tuple[str, ...] = field(default_factory=tuple)
 
     def __post_init__(self) -> None:
-        if not self.name:
-            raise ValueError('SystemSpec.name must be non-empty string.')
+        if not isinstance(self.name, str):
+            raise TypeError("System name must be a string.")
         
-        if not self.phase:
-            raise ValueError('SystemSpec.phase must be non-empty string.')
+        if not self.name.strip():
+            raise ValueError("System name must not be empty or blank.")
+
+        if not isinstance(self.phase, str):
+            raise TypeError("System phase must be a string.")
+        if not self.phase.strip():
+            raise ValueError("System phase must not be empty or blank.")
+
+        if not callable(self.fn):
+            raise TypeError("System fn must be callable.")
+
+        if not isinstance(self.run_every, int):
+            raise TypeError("run_every must be an integer.")
         
         if self.run_every < 1:
-            raise ValueError('SystemSpec.run_every must be >= 1.')
+            raise ValueError("run_every must be >= 1.")
+
+        if self.before is None:
+            object.__setattr__(self, "before", ())
+        else:
+            object.__setattr__(self, "before", tuple(self.before))
+
+        if self.after is None:
+            object.__setattr__(self, "after", ())
+        else:
+            object.__setattr__(self, "after", tuple(self.after))

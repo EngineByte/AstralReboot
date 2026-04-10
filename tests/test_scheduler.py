@@ -88,3 +88,19 @@ def test_before_after_dependency_ordering(world) -> None:
     world.run_phase("sim", 1.0 / 60.0)
 
     assert calls == ["a", "b"]
+
+def test_scheduler_run_every_two_skips_every_other_frame(world) -> None:
+    calls: list[int] = []
+    frame = {"n": 0}
+
+    def system_every_two(world, dt: float) -> None:
+        calls.append(frame["n"])
+
+    world.add_system(
+        SystemSpec(
+            name="every_two",
+            fn=system_every_two,
+            phase="sim",
+            run_every=2,
+        )
+    )    

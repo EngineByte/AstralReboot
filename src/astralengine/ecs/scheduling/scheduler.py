@@ -53,7 +53,8 @@ class SystemScheduler:
         '_systems_by_name',
         '_frame_index',
         '_timings',
-        '_phase_stats'
+        '_phase_stats',
+        '_run_counters'
     )
 
     def __init__(self, phases: Iterable[PhaseSpec] | None = None) -> None:
@@ -66,6 +67,7 @@ class SystemScheduler:
         self._phase_order: list[str] = []
         self._systems_by_phase: dict[str, list[SystemSpec]] = {}
         self._systems_by_name: dict[str, SystemSpec] = {}
+        self._run_counters: dict[str, int] = {}
 
         for phase in phase_specs:
             if phase.name in self._phase_specs:
@@ -132,6 +134,7 @@ class SystemScheduler:
         
         self._systems_by_phase[spec.phase].append(spec)
         self._systems_by_name[spec.name] = spec
+        self._run_counters[spec.name] = 0
 
     def remove_system(self, name: str) -> None:
         '''
@@ -206,9 +209,6 @@ class SystemScheduler:
         ran_count = 0
 
         for spec in ordered_systems:
-            if not spec.enabled:
-                continue
-
             if not self._should_run_this_frame(spec):
                 continue
 
@@ -242,7 +242,13 @@ class SystemScheduler:
         '''
         True if a system's cadence allows for it to run in the current sim frame.
         '''
-        return (self._frame_index % spec.run_every) == 0
+        if not spec.enabled:
+            return False
+        
+        run_every = max(1, spec.run_every)
+        self._run_counters[spec.name] += 1
+
+        return (self._run_counters[spec.name] - 1) % run_every == 0
     
     def _resolve_phase_order(self, phase_name: str) -> tuple[SystemSpec, ...]:
         '''

@@ -30,11 +30,11 @@ class PhaseSpec:
 DEFAULT_PHASES: tuple[PhaseSpec, ...] = (
     PhaseSpec(name='startup', commit_after=True),
     PhaseSpec(name='input', commit_after=False),
-    PhaseSpec(name='pre-sim', commit_after=False),
+    PhaseSpec(name='pre_sim', commit_after=False),
     PhaseSpec(name='sim', commit_after=True),
-    PhaseSpec(name='post-sim', commit_after=True),
-    PhaseSpec(name='pre-render', commit_after=False),
-    PhaseSpec(name='render-extract', commit_after=True),
+    PhaseSpec(name='post_sim', commit_after=True),
+    PhaseSpec(name='pre_render', commit_after=False),
+    PhaseSpec(name='render_extract', commit_after=True),
     PhaseSpec(name='cleanup', commit_after=True),
 )
 

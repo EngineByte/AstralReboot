@@ -219,7 +219,7 @@ class StoreRegistry:
         store = self._component_stores.get(typ)
         if store is None:
             raise KeyError(f'No component store registered for type: {typ}')
-        return store
+        return store.get(eid)
 
     def add_tag(self, eid: EntityHandle, tag_type: Type[Any]) -> None:
         store = self._tag_stores.get(tag_type)
