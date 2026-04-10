@@ -431,27 +431,26 @@ class ECSWorld:
                 
         return tuple(out)
     
-    def add_resource(self, resource: object, *, resource_type: type | None = None) -> None:
+    def add_resource(self, resource: object) -> None:
         '''
         Add or replace a global resource.
         '''
-        key = resource_type or type(resource)
-        self._resources.add(key, resource)
+        self._resources.add(resource)
         
-    def get_resource(self, resource_type: type[T]) -> T:
+    def get_required_resource(self, resource_type: type[T]) -> T:
         '''
         Returns the resource according to type.
         
         Raises:
             KeyError if no resource found.
         '''
-        return self._resources.get(resource_type)
+        return self._resources.get_required(resource_type)
     
-    def try_get_resource(self, resource_type: type[T]) -> T | None:
+    def get_resource(self, resource_type: type[T]) -> T | None:
         '''
         Returns a resource if present, None if not present.
         '''
-        return self._resources.try_get(resource_type)
+        return self._resources.get(resource_type)
     
     def has_resource(self, resource_type: type) -> bool:
         '''

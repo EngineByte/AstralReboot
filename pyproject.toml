@@ -33,4 +33,5 @@ markers = [
     "command_buffer",
     "system",
     "world",
+    "resource",
 ]
