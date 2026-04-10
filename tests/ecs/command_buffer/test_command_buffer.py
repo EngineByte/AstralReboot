@@ -1,6 +1,14 @@
 from __future__ import annotations
 
-from .conftest import Active, Counter, Position
+from conftest import Active, Counter, Position
+
+import pytest
+
+pytestmark = [
+    pytest.mark.ecs,
+    pytest.mark.command_buffer,
+    pytest.mark.unit
+]
 
 
 def test_deferred_create_entity_becomes_alive_after_apply(world) -> None:

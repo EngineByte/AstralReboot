@@ -2,6 +2,12 @@ from __future__ import annotations
 
 import pytest
 
+pytestmark = [
+    pytest.mark.ecs,
+    pytest.mark.query,
+    pytest.mark.unit
+]
+
 from astralengine.ecs.scheduling.phases import PhaseSpec
 from astralengine.ecs.scheduling.scheduler import SystemScheduler
 from astralengine.ecs.scheduling.system_spec import SystemSpec

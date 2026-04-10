@@ -2,6 +2,14 @@ from __future__ import annotations
 
 from astralengine.ecs.storage.tag_store import TagStore
 
+import pytest
+
+pytestmark = [
+    pytest.mark.ecs,
+    pytest.mark.storage,
+    pytest.mark.unit
+]
+
 
 def test_add_and_has_tag_membership() -> None:
     store = TagStore()

@@ -132,6 +132,9 @@ class SystemScheduler:
         if spec.name in self._systems_by_name:
             raise ValueError(f'Duplicate system name: {spec.name}')
         
+        if spec.name in spec.before or spec.name in spec.after:
+            raise ValueError(f'Self dependency is not allowed: {spec.name}')
+        
         self._systems_by_phase[spec.phase].append(spec)
         self._systems_by_name[spec.name] = spec
         self._run_counters[spec.name] = 0

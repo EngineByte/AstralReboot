@@ -2,6 +2,14 @@ from __future__ import annotations
 
 from astralengine.ecs.scheduling.system_spec import SystemSpec
 
+import pytest
+
+pytestmark = [
+    pytest.mark.ecs,
+    pytest.mark.scheduler,
+    pytest.mark.unit
+]
+
 
 def test_run_phase_executes_only_systems_in_that_phase(world) -> None:
     calls: list[str] = []

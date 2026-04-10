@@ -4,6 +4,14 @@ from dataclasses import dataclass
 
 from astralengine.ecs.storage.dense_store import DenseStore
 
+import pytest
+
+pytestmark = [
+    pytest.mark.ecs,
+    pytest.mark.storage,
+    pytest.mark.unit
+]
+
 
 @dataclass
 class Counter:

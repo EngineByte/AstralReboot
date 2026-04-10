@@ -2,7 +2,13 @@ from __future__ import annotations
 
 import pytest
 
-from .conftest import Active, Counter, Position
+pytestmark = [
+    pytest.mark.ecs,
+    pytest.mark.world,
+    pytest.mark.unit
+]
+
+from conftest import Active, Counter, Position
 
 
 def test_create_entity_returns_alive_entity(world) -> None:

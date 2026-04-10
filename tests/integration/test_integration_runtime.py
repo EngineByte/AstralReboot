@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import pytest
 
+pytestmark = [pytest.mark.integration]
+
 from astralengine.ecs.core.world import ECSWorld
 from astralengine.ecs.scheduling.phases import PhaseSpec
 from astralengine.ecs.scheduling.scheduler import SystemScheduler

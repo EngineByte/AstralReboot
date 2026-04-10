@@ -4,6 +4,12 @@ from dataclasses import dataclass
 
 import pytest
 
+pytestmark = [
+    pytest.mark.ecs,
+    pytest.mark.storage,
+    pytest.mark.unit
+]
+
 from astralengine.ecs.storage.dense_store import DenseStore
 from astralengine.ecs.storage.store_registry import StoreRegistry
 from astralengine.ecs.storage.tag_store import TagStore

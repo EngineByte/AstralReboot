@@ -11,3 +11,26 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config"
+]
+
+markers = [
+    "unit",
+    "integration",
+    "slow",
+    "ecs",
+    "storage",
+    "scheduler",
+    "query",
+    "command_buffer",
+    "system",
+    "world",
+]
