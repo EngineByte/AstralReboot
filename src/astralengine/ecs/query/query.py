@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
 from typing import Any
 
@@ -12,7 +12,7 @@ class QuerySpec:
     tag_types: tuple[type, ...]
 
 
-class Query(Iterator[tuple[Any, ...]]):
+class Query(Iterable[tuple[Any, ...]]):
     '''
     ECS query over required component types with flag filters.
     

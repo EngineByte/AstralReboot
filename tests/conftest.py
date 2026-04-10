@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import pytest
 
 from astralengine.ecs.core.world import ECSWorld
+from astralengine.ecs.scheduling.scheduler import SystemScheduler
 
 
 @dataclass
@@ -39,4 +40,6 @@ class Frozen:
 
 @pytest.fixture
 def world() -> ECSWorld:
-    return ECSWorld()
+    world = ECSWorld()
+    world.bind_scheduler(SystemScheduler())
+    return world

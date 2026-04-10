@@ -18,11 +18,11 @@ def system_tick_lifetime(world, dt: float) -> None:
     for entity, (lifetime,) in world.query((Lifetime,)):
         lifetime.frames_left -= 1
         if lifetime.frames_left <= 0:
-            world.command_buffer.defer_destroy_entity(entity)
+            world.defer_destroy_entity(entity)
 
 
 def test_counter_system_runs_across_multiple_frames(world) -> None:
-    world.scheduler.add_system(
+    world.add_system(
         SystemSpec(
             name="increment_counter",
             fn=system_increment_counter,
@@ -42,7 +42,7 @@ def test_counter_system_runs_across_multiple_frames(world) -> None:
 
 
 def test_multiple_entities_update_independently(world) -> None:
-    world.scheduler.add_system(
+    world.add_system(
         SystemSpec(
             name="increment_counter",
             fn=system_increment_counter,
@@ -69,7 +69,7 @@ def test_multiple_entities_update_independently(world) -> None:
 
 
 def test_deferred_destroy_is_safe_during_iteration(world) -> None:
-    world.scheduler.add_system(
+    world.add_system(
         SystemSpec(
             name="tick_lifetime",
             fn=system_tick_lifetime,

@@ -7,7 +7,7 @@ from dataclasses import dataclass
 @dataclass(frozen=True, slots=True)
 class AddComponentCommand:
     entity: int
-    component: object
+    component_type: object
 
 
 @dataclass(frozen=True, slots=True)
@@ -91,8 +91,8 @@ class CommandBuffer:
         Queue component addition.
         '''
         
-        self._add_componenets.append(
-            AddComponentCommand(entity=entity, component=component)
+        self._add_components.append(
+            AddComponentCommand(entity=entity, component_type=component)
         )
         
     def defer_remove_component(self, entity: int, component_type: type) -> None:
@@ -127,7 +127,7 @@ class CommandBuffer:
         return bool(
             self._create_entities
             or self._destroy_entities
-            or self._add_componenets
+            or self._add_components
             or self._remove_components
             or self._add_tags
             or self._remove_tags
@@ -142,7 +142,7 @@ class CommandBuffer:
             'CommandBuffer('
             f'creates={len(self._create_entities)}'
             f'destroys={len(self._destroy_entities)}'
-            f'add_components{len(self._add_componenets)}'
+            f'add_components{len(self._add_components)}'
             f'remove_components{len(self._remove_components)}'
             f'add_tags{len(self._add_tags)}'
             f'remove_tags={len(self._remove_tags)}'
@@ -156,7 +156,7 @@ class CommandBuffer:
         return (
             len(self._create_entities)
             + len(self._destroy_entities)
-            + len(self._add_componenets)
+            + len(self._add_components)
             + len(self._remove_components)
             + len(self._add_tags)
             + len(self._remove_tags)
@@ -190,7 +190,7 @@ class CommandBuffer:
         self._next_placeholder = -1
         self._create_entities.clear()
         self._destroy_entities.clear()
-        self._add_componenets.clear()
+        self._add_components.clear()
         self._remove_components.clear()
         self._add_tags.clear()
         self._remove_tags.clear()
