@@ -1,139 +1,243 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-import numpy as np
-import numpy.typing as npt
-
-EntityId = np.uint64
-Index = np.uint32
-Generation = np.uint32
-
-_INDEX_MASK: int = 0xFFFF_FFFF
-_GEN_SHIFT: int = 32
 
 
+ENTITY_INDEX_BITS = 32
+GENERATION_BITS = 32
+
+ENTITY_INDEX_MASK = (1 << ENTITY_INDEX_BITS) - 1
+GENERATION_MASK = (1 << GENERATION_BITS) - 1
+
+MAX_ENTITY_INDEX = ENTITY_INDEX_MASK
+MAX_GENERATION = GENERATION_MASK
+
+
+@dataclass(frozen=True, slots=True)
 class EntityHandle:
-    @classmethod
-    def pack(cls, index: int, generation: int) -> np.int64:
-        raise NotImplementedError
-    
-    @classmethod
-    def unpack(cls, handle: int) -> tuple[int, int]:
-        raise NotImplementedError
+    '''
+    Utility class for packing and unpacking ECS entity identifiers.
 
+    An entity in this ECS is represented externally as a single integer (`eid`)
+    that encodes two pieces of information:
 
-def entity_index(eid: EntityId) -> Index:
-    return Index(int(eid) & _INDEX_MASK)
+        - index: the slot into ECS storage arrays
+        - generation: a version number used to detect stale references
 
+    Layout of packed entity ID (64-bit):
 
-def entity_generation(eid: EntityId) -> Generation:
-    return Generation((int(eid) >> _GEN_SHIFT) & _INDEX_MASK)
+        [ generation (high 32 bits) | index (low 32 bits) ]
 
+    ------------------------------------------------------------------------
+    Design goals:
+    ------------------------------------------------------------------------
 
-def make_entity_id(index: Index, generation: Generation) -> EntityId:
-    return EntityId((int(generation) << _GEN_SHIFT) | int(index))
+    - Compact representation (single integer)
+    - Fast extraction of index for array access
+    - Generation-based safety against stale handles
+    - Compatible with dense storage ECS patterns
 
+    ------------------------------------------------------------------------
+    Usage:
+    ------------------------------------------------------------------------
 
-class EntityAllocator:
-    def __init__(self, entity_capacity: int) -> None:
-        if entity_capacity <= 0:
-            raise ValueError('capacity must be > 0')
+    Create packed ID:
 
-        self._capacity: int = int(entity_capacity)
+        eid = EntityHandle.pack(index=5, generation=2)
 
-        self._generations: npt.NDArray[np.uint32] = np.zeros(self._capacity, dtype=np.uint32)
-        self._alive: npt.NDArray[np.bool_] = np.zeros(self._capacity, dtype=np.bool_)
+    Unpack:
 
-        self._free: npt.NDArray[np.uint32] = np.arange(self._capacity - 1, -1, -1, dtype=np.uint32)
-        self._free_top: int = self._capacity
+        index, generation = EntityHandle.unpack(eid)
 
-        self._alive_count: int = 0
+    Extract parts directly:
+
+        index = EntityHandle.get_index(eid)
+        generation = EntityHandle.get_generation(eid)
+
+    Optional object form:
+
+        handle = EntityHandle.make(index, generation)
+        eid = int(handle)
+    '''
+
+    index: int
+    generation: int
+
+    def __post_init__(self) -> None:
+        '''
+        Validate index and generation bounds.
+        '''
+        if self.index < 0:
+            raise ValueError(f'Entity index must be non-negative, got {self.index}')
+
+        if self.generation < 0:
+            raise ValueError(
+                f'Entity generation must be non-negative, got {self.generation}'
+            )
+
+        if self.index > MAX_ENTITY_INDEX:
+            raise ValueError(
+                f'Entity index {self.index} exceeds {ENTITY_INDEX_BITS}-bit limit '
+                f'({MAX_ENTITY_INDEX})'
+            )
+
+        if self.generation > MAX_GENERATION:
+            raise ValueError(
+                f'Entity generation {self.generation} exceeds {GENERATION_BITS}-bit limit '
+                f'({MAX_GENERATION})'
+            )
 
     @property
-    def capacity(self) -> int:
-        return self._capacity
+    def id(self) -> int:
+        '''
+        Alias for index (useful for compatibility with APIs expecting `.id`).
+        '''
+        return self.index
 
-    def alive_count(self) -> int:
-        return self._alive_count
+    @property
+    def gen(self) -> int:
+        '''
+        Alias for generation.
+        '''
+        return self.generation
 
-    def create(self) -> EntityId:
-        if self._free_top == 0:
-            raise RuntimeError(
-                f'EntityAllocator exhausted: capacity={self._capacity}. '
-                f'Increase capacity or recycle entities.'
-            )
+    def to_int(self) -> int:
+        '''
+        Pack this handle into a single integer.
 
-        self._free_top -= 1
-        idx = Index(self._free[self._free_top])
-        gen = Generation(self._generations[int(idx)])
+        Returns:
+            int: Packed entity ID.
+        '''
+        return (self.generation << ENTITY_INDEX_BITS) | self.index
 
-        self._alive[int(idx)] = True
-        self._alive_count += 1
+    def __int__(self) -> int:
+        '''
+        Allow implicit conversion to packed integer.
+        '''
+        return self.to_int()
 
-        return make_entity_id(idx, gen)
+    @classmethod
+    def pack(cls, index: int, generation: int) -> int:
+        '''
+        Pack raw entity parts into a single integer.
 
-    def destroy(self, eid: EntityId) -> None:
-        idx_i = self._require_alive(eid)
+        Args:
+            index (int): Entity storage index.
+            generation (int): Generation/version.
 
-        self._alive[idx_i] = False
-        self._alive_count -= 1
+        Returns:
+            int: Packed entity ID.
 
-        self._generations[idx_i] = np.uint32(self._generations[idx_i] + np.uint32(1))
+        Raises:
+            ValueError: If values are out of bounds.
+        '''
+        if index < 0:
+            raise ValueError(f'Entity index must be non-negative, got {index}')
 
-        self._free[self._free_top] = np.uint32(idx_i)
-        self._free_top += 1
+        if generation < 0:
+            raise ValueError(f'Entity generation must be non-negative, got {generation}')
 
-    def is_alive(self, eid: EntityId) -> bool:
-        idx = int(entity_index(eid))
-        if idx < 0 or idx >= self._capacity:
-            return False
-        if not bool(self._alive[idx]):
-            return False
-        return int(entity_generation(eid)) == int(self._generations[idx])
-
-    def _require_alive(self, eid: EntityId) -> int:
-        idx = int(entity_index(eid))
-        gen = int(entity_generation(eid))
-
-        if idx < 0 or idx >= self._capacity:
-            raise ValueError(f'Invalid entity index: {idx} (capacity={self._capacity})')
-
-        if not bool(self._alive[idx]):
-            raise ValueError(f'Entity is not alive: eid={int(eid)} idx={idx}')
-
-        cur_gen = int(self._generations[idx])
-        if gen != cur_gen:
+        if index > MAX_ENTITY_INDEX:
             raise ValueError(
-                f'Stale entity handle: eid={int(eid)} idx={idx} gen={gen} current_gen={cur_gen}'
+                f'Entity index {index} exceeds {ENTITY_INDEX_BITS}-bit limit '
+                f'({MAX_ENTITY_INDEX})'
             )
 
-        return idx
+        if generation > MAX_GENERATION:
+            raise ValueError(
+                f'Entity generation {generation} exceeds {GENERATION_BITS}-bit limit '
+                f'({MAX_GENERATION})'
+            )
 
-    def grow(self, new_capacity: int) -> None:
-        new_capacity = int(new_capacity)
-        if new_capacity <= self._capacity:
-            raise ValueError('new_capacity must be greater than current capacity')
+        return (generation << ENTITY_INDEX_BITS) | index
 
-        old_cap = self._capacity
-        self._capacity = new_capacity
+    @classmethod
+    def unpack(cls, eid: int) -> tuple[int, int]:
+        '''
+        Unpack a packed entity ID into its components.
 
-        self._generations = np.resize(self._generations, new_capacity).astype(np.uint32, copy=False)
-        self._alive = np.resize(self._alive, new_capacity).astype(np.bool_, copy=False)
+        Args:
+            eid (int): Packed entity ID.
 
-        self._generations[old_cap:new_capacity] = np.uint32(0)
-        self._alive[old_cap:new_capacity] = False
+        Returns:
+            tuple[int, int]:
+                (index, generation)
 
-        old_free = self._free[: self._free_top].copy()  # existing free stack content
-        new_indices = np.arange(new_capacity - 1, old_cap - 1, -1, dtype=np.uint32)  # new slots
-        self._free = np.empty(new_capacity, dtype=np.uint32)
+        Raises:
+            ValueError: If eid is negative.
+        '''
+        if eid < 0:
+            raise ValueError(f'Packed entity id must be non-negative, got {eid}')
 
-        content = np.concatenate([old_free, new_indices])
-        self._free[: content.size] = content
-        self._free_top = int(content.size)
+        index = eid & ENTITY_INDEX_MASK
+        generation = (eid >> ENTITY_INDEX_BITS) & GENERATION_MASK
+        return index, generation
 
-    def stats(self) -> dict:
-        return {
-            'capacity': self._capacity,
-            'alive_count': self._alive_count,
-            'free_count': self._free_top,
-        }
+    @classmethod
+    def get_index(cls, eid: int) -> int:
+        '''
+        Extract entity index from packed ID.
+
+        Args:
+            eid (int): Packed entity ID.
+
+        Returns:
+            int: Entity index.
+        '''
+        if eid < 0:
+            raise ValueError(f'Packed entity id must be non-negative, got {eid}')
+        return eid & ENTITY_INDEX_MASK
+
+    @classmethod
+    def get_generation(cls, eid: int) -> int:
+        '''
+        Extract generation from packed ID.
+
+        Args:
+            eid (int): Packed entity ID.
+
+        Returns:
+            int: Generation value.
+        '''
+        if eid < 0:
+            raise ValueError(f'Packed entity id must be non-negative, got {eid}')
+        return (eid >> ENTITY_INDEX_BITS) & GENERATION_MASK
+
+    @classmethod
+    def make(cls, index: int, generation: int) -> EntityHandle:
+        '''
+        Create an EntityHandle object from raw parts.
+
+        Useful when working in object form instead of packed ints.
+        '''
+        return cls(index=index, generation=generation)
+
+    @classmethod
+    def from_int(cls, eid: int) -> EntityHandle:
+        '''
+        Convert a packed entity ID into an EntityHandle object.
+
+        Args:
+            eid (int): Packed entity ID.
+
+        Returns:
+            EntityHandle
+        '''
+        index, generation = cls.unpack(eid)
+        return cls(index=index, generation=generation)
+
+    def __iter__(self):
+        '''
+        Allow tuple unpacking:
+
+            index, generation = EntityHandle.make(...)
+        '''
+        yield self.index
+        yield self.generation
+
+    def __repr__(self) -> str:
+        return (
+            f'EntityHandle(index={self.index}, '
+            f'generation={self.generation}, '
+            f'packed={self.to_int()})'
+        )

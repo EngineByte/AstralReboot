@@ -93,34 +93,36 @@ class ECSWorld:
         old references by incrementing generation, and adds the index to
         the free list.
         '''
-        self._require_alive(eid)
+        if not self.is_alive(eid):
+            return
+        
         index, _ = EntityHandle.unpack(eid)
         
         for store in self._stores.component_stores():
-            store.remove(eid)
+            if store.has(eid):
+                store.remove(eid)
             
         for store in self._stores.tag_stores():
-            store.remove(eid)
+            if store.has(eid):
+                store.remove(eid)
             
         self._alive[index] = False
         self._generations[index] += 1
         self._free_indices.append(index)
         
         self._destroyed_entities += 1
-        
+
     def is_alive(self, eid: int) -> bool:
-        '''
-        True if entity handle is valid and alive.
-        '''
-        try: 
-            index, generation = EntityHandle.unpack(eid)
-        except Exception:
+        index = EntityHandle.get_index(eid)
+        generation = EntityHandle.get_generation(eid)
+
+        if index >= len(self._generations):
             return False
-        
-        if index < 0 or index >= len(self._generations):
+
+        if not self._alive[index]:
             return False
-        
-        return self._alive[index] and self._generations[index] == generation
+
+        return self._generations[index] == generation
     
     def entity_count(self) -> int:
         '''
@@ -149,8 +151,14 @@ class ECSWorld:
         '''
         self._require_alive(eid)
         store = self._stores.get_component_store(component_type)
-        if store is not None:
-            store.remove(eid)
+
+        if store is None:
+            return
+        
+        if not store.has(eid):
+            return
+        
+        store.remove(eid)
 
     def has_component(self, eid: int, component_type: type) -> bool:
         '''
@@ -165,16 +173,18 @@ class ECSWorld:
     
     def get_component(self, eid: int, component_type: type[T]) -> T:
         '''
-        Returns the component instance for an entity.
-        
-        Raises:
-            KeyError if entity does not have component.
+        Returns the component instance for an entity, None otherwise.
         '''
-        self._require_alive(eid)
+        if not self.is_alive(eid):
+            return None
+        
         store = self._stores.get_component_store(component_type)
         
-        if store is None or not store.has(eid):
-            raise KeyError(f'Entity {eid} does not have component {component_type.__name__}')
+        if store is None:
+            return None
+        
+        if not store.has(eid):
+            return None
         
         return store.get(eid)
     

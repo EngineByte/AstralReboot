@@ -3,11 +3,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from collections import defaultdict, deque
 from time import perf_counter
-from typing import Iterable
+from typing import Iterable, TYPE_CHECKING
 
 from astralengine.ecs.scheduling.system_spec import SystemSpec
 from astralengine.ecs.scheduling.phases import PhaseSpec, DEFAULT_PHASES
-from astralengine.ecs.core.world import ECSWorld
+
+if TYPE_CHECKING:
+    from astralengine.ecs.core.world import ECSWorld
 
 
 @dataclass(slots=True)

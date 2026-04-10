@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Iterator, List, Sequence, Tuple, Type
 
-from astralengine.ecs.core.entity import EntityId
+from astralengine.ecs.core.entity import EntityHandle
 from astralengine.ecs.storage.tag_store import TagStore
 from astralengine.ecs.storage.dense_store import DenseStore
 
@@ -196,56 +196,56 @@ class StoreRegistry:
             ')'
         )
     
-    def add_component(self, eid: EntityId, component: Any) -> None:
+    def add_component(self, eid: EntityHandle, component: Any) -> None:
         typ = type(component)
         store = self._component_stores.get(typ)
         if store is None:
             raise KeyError(f'No component store registered for type: {typ}')
         store.add(eid, component)
 
-    def remove_component(self, eid: EntityId, typ: Type[Any]) -> None:
+    def remove_component(self, eid: EntityHandle, typ: Type[Any]) -> None:
         store = self._component_stores.get(typ)
         if store is None:
             return
         store.remove(eid)
 
-    def has_component(self, eid: EntityId, typ: Type[Any]) -> bool:
+    def has_component(self, eid: EntityHandle, typ: Type[Any]) -> bool:
         store = self._component_stores.get(typ)
         if store is None:
             return False
         return bool(store.has(eid))
 
-    def get_component(self, eid: EntityId, typ: Type[Any]) -> Any:
+    def get_component(self, eid: EntityHandle, typ: Type[Any]) -> Any:
         store = self._component_stores.get(typ)
         if store is None:
             raise KeyError(f'No component store registered for type: {typ}')
         return store
 
-    def add_tag(self, eid: EntityId, tag_type: Type[Any]) -> None:
+    def add_tag(self, eid: EntityHandle, tag_type: Type[Any]) -> None:
         store = self._tag_stores.get(tag_type)
         if store is None:
             raise KeyError(f'No tag store registered for type: {tag_type}')
         store.add(eid)
 
-    def remove_tag(self, eid: EntityId, tag_type: Type[Any]) -> None:
+    def remove_tag(self, eid: EntityHandle, tag_type: Type[Any]) -> None:
         store = self._tag_stores.get(tag_type)
         if store is None:
             return
         store.remove(eid)
 
-    def has_tag(self, eid: EntityId, tag_type: Type[Any]) -> bool:
+    def has_tag(self, eid: EntityHandle, tag_type: Type[Any]) -> bool:
         store = self._tag_stores.get(tag_type)
         if store is None:
             return False
         return bool(store.has(eid))
 
-    def remove_all_components(self, eid: EntityId) -> None:
+    def remove_all_components(self, eid: EntityHandle) -> None:
         for store in self._component_stores.values():
             store.remove(eid)
         for store in self._tag_stores.values():
             store.remove(eid)
 
-    def query(self, include: Sequence[Type[Any]]) -> Iterator[Tuple[EntityId, Tuple[Any, ...]]]:
+    def query(self, include: Sequence[Type[Any]]) -> Iterator[Tuple[EntityHandle, Tuple[Any, ...]]]:
         if not include:
             return iter(())
 
@@ -281,9 +281,9 @@ class StoreRegistry:
 
         comp_stores = [self._component_stores[t] for t in comp_types]
 
-        def iterator() -> Iterator[Tuple[EntityId, Tuple[Any, ...]]]:
+        def iterator() -> Iterator[Tuple[EntityHandle, Tuple[Any, ...]]]:
             for raw in drive_eids:
-                eid = EntityId(raw)
+                eid = EntityHandle(raw)
 
                 ok = True
                 for s in comp_stores:

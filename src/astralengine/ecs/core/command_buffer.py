@@ -1,10 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass, field
-from typing import Any
-
-from astralengine.ecs.core.entity import EntityId
+from dataclasses import dataclass
 
 
 @dataclass(frozen=True, slots=True)
@@ -62,7 +59,7 @@ class CommandBuffer:
         self._next_placeholder: int = -1
         self._create_entities: list[int] = []
         self._destroy_entities: list[int] = []
-        self._add_componenets: list[AddComponentCommand] = []
+        self._add_components: list[AddComponentCommand] = []
         self._remove_components: list[RemoveComponentCommand] = []
         self._add_tags: list[AddTagCommand] = []
         self._remove_tags: list[RemoveTagCommand] = []

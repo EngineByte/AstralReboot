@@ -5,8 +5,6 @@ from typing import Any, Dict
 import numpy as np
 import numpy.typing as npt
 
-from astralengine.ecs.core.entity import EntityId, entity_index
-
 
 class TagStore:
     '''
