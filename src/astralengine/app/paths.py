@@ -1,97 +1,30 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from pathlib import Path
 import os
-import sys
+from pathlib import Path
 
 
-@dataclass(frozen=True, slots=True)
-class AppPaths:
-    """
-    Canonical filesystem locations used by the engine.
+def configure_paths() -> None:
+    '''
+    Configure runtime paths and ensure core directories exist.
 
-    These are resolved once during startup and stored as a
-    resource in the ECS world.
-    """
+    Environment variables set:
+    - ASTRAL_ROOT
+    - ASTRAL_SRC
+    - ASTRAL_LOG_DIR
+    - ASTRAL_ASSET_DIR
+    '''
+    package_dir = Path(__file__).resolve().parent
+    src_dir = package_dir.parent
+    root_dir = src_dir.parent.parent
 
-    project_root: Path
-    src_root: Path
+    log_dir = root_dir / 'logs'
+    asset_dir = src_dir / 'astralengine' / 'assets'
 
-    assets_src: Path
-    cooked_assets: Path
+    log_dir.mkdir(parents=True, exist_ok=True)
+    asset_dir.mkdir(parents=True, exist_ok=True)
 
-    cache: Path
-    config: Path
-    user_data: Path
-
-    dist: Path
-
-def _detect_project_root() -> Path:
-    """
-    Locate the repository root.
-
-    Works both in development and installed environments.
-    """
-
-    here = Path(__file__).resolve()
-
-    for parent in here.parents:
-        if (parent / "pyproject.toml").exists():
-            return parent
-
-    return here.parents[4]
-
-def build_paths() -> AppPaths:
-    """
-    Construct the canonical path structure.
-    """
-
-    root = _detect_project_root()
-
-    paths = AppPaths(
-        project_root=root,
-        src_root=root / "src",
-
-        assets_src=root / "assets_src",
-        cooked_assets=root / "cooked_assets",
-
-        cache=root / "cache",
-        config=root / "config",
-        user_data=root / "user_data",
-
-        dist=root / "dist",
-    )
-
-    _ensure_directories(paths)
-
-    return paths
-
-def _ensure_directories(paths: AppPaths) -> None:
-    """
-    Create runtime directories if they don't exist.
-    """
-
-    paths.cache.mkdir(parents=True, exist_ok=True)
-    paths.user_data.mkdir(parents=True, exist_ok=True)
-    paths.cooked_assets.mkdir(parents=True, exist_ok=True)
-
-def describe_paths(paths: AppPaths) -> str:
-    """
-    Return a formatted string describing current paths.
-    Useful for debugging startup.
-    """
-
-    return (
-        "\n"
-        "AstralEngine Path Configuration\n"
-        "--------------------------------\n"
-        f"project_root : {paths.project_root}\n"
-        f"src_root     : {paths.src_root}\n"
-        f"assets_src   : {paths.assets_src}\n"
-        f"cooked_assets: {paths.cooked_assets}\n"
-        f"cache        : {paths.cache}\n"
-        f"config       : {paths.config}\n"
-        f"user_data    : {paths.user_data}\n"
-        f"dist         : {paths.dist}\n"
-    )
+    os.environ.setdefault('ASTRAL_ROOT', str(root_dir))
+    os.environ.setdefault('ASTRAL_SRC', str(src_dir))
+    os.environ.setdefault('ASTRAL_LOG_DIR', str(log_dir))
+    os.environ.setdefault('ASTRAL_ASSET_DIR', str(asset_dir))

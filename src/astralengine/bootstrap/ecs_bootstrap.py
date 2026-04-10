@@ -1,16 +1,27 @@
 from __future__ import annotations
 
 from astralengine.ecs.core.world import ECSWorld
-from astralengine.bootstrap.system_bootstrap import install_core_ecs_systems
+from astralengine.ecs.scheduling.phases import PhaseSpec
+from astralengine.ecs.scheduling.scheduler import SystemScheduler
 
 
-def create_ecs_world() -> ECSWorld:
+def build_world() -> ECSWorld:
     '''
-    Create a new ECS world in its minimal runable form.
+    Construct the ECS world and bind a scheduler.
+
+    This is the central ECS bootstrap point.
     '''
+    scheduler = SystemScheduler(
+        phases=(
+            PhaseSpec(name='startup', commit_after=True),
+            PhaseSpec(name='input', commit_after=True),
+            PhaseSpec(name='pre_sim', commit_after=True),
+            PhaseSpec(name='sim', commit_after=True),
+            PhaseSpec(name='post_sim', commit_after=True),
+            PhaseSpec(name='cleanup', commit_after=True),
+        )
+    )
 
     world = ECSWorld()
-
-    install_core_ecs_systems(world)
-
+    world.bind_scheduler(scheduler)
     return world
