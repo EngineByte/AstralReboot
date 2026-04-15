@@ -2,18 +2,18 @@ from __future__ import annotations
 
 import numpy as np
 
-from astralengine.old_code.components.chunk import Chunk
-from astralengine.old_code.components.mesh import Mesh
-from astralengine.old_code.components.model_matrix import ModelMatrix
-from astralengine.old_code.components.chunk_residency import ChunkResidency
-from astralengine.old_code.components.chunk_lod import ChunkLOD
+from astralengine._legacy.components.chunk import Chunk
+from astralengine._legacy.components.mesh import Mesh
+from astralengine._legacy.components.model_matrix import ModelMatrix
+from astralengine._legacy.components.chunk_residency import ChunkResidency
+from astralengine._legacy.components.chunk_lod import ChunkLOD
 from astralengine.ecs.query.query import Query
 from astralengine.ecs.core.world import ECSWorld
-from astralengine.old_code.rendering.pipeline.draw_commands import MeshDrawCommand
-from astralengine.old_code.rendering.renderer import Renderer
-from astralengine.old_code.resources.render_settings import RenderSettings
-from astralengine.old_code.stores.mesh_store import MeshStore
-from astralengine.old_code.stores.model_matrix_store import ModelMatrixStore
+from astralengine._legacy.rendering.pipeline.draw_commands import MeshDrawCommand
+from astralengine._legacy.rendering.renderer import Renderer
+from astralengine._legacy.resources.render_settings import RenderSettings
+from astralengine._legacy.stores.mesh_store import MeshStore
+from astralengine._legacy.stores.model_matrix_store import ModelMatrixStore
 
 
 def system_submit_chunks(world: ECSWorld, dt: float) -> None:

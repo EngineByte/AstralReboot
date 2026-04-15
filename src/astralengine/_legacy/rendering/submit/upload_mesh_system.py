@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from astralengine.old_code.components.chunk import Chunk
-from astralengine.old_code.components.mesh import Mesh
-from astralengine.old_code.components.tags import DirtyRemesh
+from astralengine._legacy.components.chunk import Chunk
+from astralengine._legacy.components.mesh import Mesh
+from astralengine._legacy.components.tags import DirtyRemesh
 from astralengine.ecs.query.query import Query
 from astralengine.ecs.core.world import ECSWorld
-from astralengine.old_code.rendering.backend.gpu_mesh_cache import GpuMeshCache
-from astralengine.old_code.stores.mesh_store import MeshStore
-from astralengine.old_code.voxels.mesh_pool import MeshPool
+from astralengine._legacy.rendering.backend.gpu_mesh_cache import GpuMeshCache
+from astralengine._legacy.stores.mesh_store import MeshStore
+from astralengine._legacy.voxels.mesh_pool import MeshPool
 
 
 def system_upload_chunk_meshes(world: ECSWorld, dt: float) -> None:

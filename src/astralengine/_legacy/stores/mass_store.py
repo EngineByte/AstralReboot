@@ -5,8 +5,8 @@ from typing import Any
 import numpy as np
 import numpy.typing as npt
 
-from astralengine.ecs.storage.soa_store import SoAStore
-from astralengine.old_code.components.mass import Mass
+from astralengine.ecs.storage.dense_store import DenseStore as SoAStore
+from astralengine._legacy.components.mass import Mass
 
 
 class MassStore(SoAStore):

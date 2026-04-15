@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from astralengine.old_code.rendering.pipeline.draw_commands import (
+from astralengine._legacy.rendering.pipeline.draw_commands import (
     DebugLineCommand,
     MeshDrawCommand,
     SkyboxDrawCommand,

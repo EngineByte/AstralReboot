@@ -3,11 +3,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from astralengine.ecs.core.world import ECSWorld
-from astralengine.old_code.resources.render_settings import RenderSettings
-from astralengine.old_code.rendering.backend.gpu_mesh_cache import GpuMeshCache
-from astralengine.old_code.rendering.backend.shader_library import ShaderLibrary
-from astralengine.old_code.rendering.pipeline.render_context import RenderContext
-from astralengine.old_code.rendering.pipeline.render_queue import RenderQueue
+from astralengine._legacy.resources.render_settings import RenderSettings
+from astralengine._legacy.rendering.backend.gpu_mesh_cache import GpuMeshCache
+from astralengine._legacy.rendering.backend.shader_library import ShaderLibrary
+from astralengine._legacy.rendering.pipeline.render_context import RenderContext
+from astralengine._legacy.rendering.pipeline.render_queue import RenderQueue
 
 
 @dataclass(slots=True)

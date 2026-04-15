@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 from pyglet import gl
 
-from astralengine.old_code.voxels.mesh_pool import MeshData
+from astralengine._legacy.voxels.mesh_pool import MeshData
 
 
 @dataclass(slots=True)

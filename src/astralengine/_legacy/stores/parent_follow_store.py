@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 
-from astralengine.old_code.components.parent_follow import ParentFollow
-from astralengine.ecs.storage.soa_store import SoAStore
+from astralengine._legacy.components.parent_follow import ParentFollow
+from astralengine.ecs.storage.dense_store import DenseStore as SoAStore
 
 
 class ParentFollowStore(SoAStore):

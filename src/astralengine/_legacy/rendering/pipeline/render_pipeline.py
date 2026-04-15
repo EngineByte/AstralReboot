@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from astralengine.ecs.core.world import ECSWorld
-from astralengine.old_code.rendering.pipeline.render_context import RenderContext
-from astralengine.old_code.rendering.pipeline.render_queue import RenderQueue
-from astralengine.old_code.rendering.pipeline.render_pass import RenderPass
+from astralengine._legacy.rendering.pipeline.render_context import RenderContext
+from astralengine._legacy.rendering.pipeline.render_queue import RenderQueue
+from astralengine._legacy.rendering.pipeline.render_pass import RenderPass
 
 
 class RenderPipeline:

@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from astralengine.old_code.assets.asset_manager import AssetManager
-from astralengine.old_code.assets.loaders.cubemap_loader import CubemapLoader
-from astralengine.old_code.rendering.backend.cubemap_texture import CubemapTexture
+from astralengine._legacy.assets.asset_manager import AssetManager
+from astralengine._legacy.assets.loaders.cubemap_loader import CubemapLoader
+from astralengine._legacy.rendering.backend.cubemap_texture import CubemapTexture
 
 
 @dataclass(slots=True)

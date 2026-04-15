@@ -1,8 +1,8 @@
 from astralengine.ecs.core.world import ECSWorld
-from astralengine.old_code.game.factories.camera_factory import spawn_follow_camera
-from astralengine.old_code.game.factories.player_factory import spawn_player
-from astralengine.old_code.game.specs.camera_spec import CameraSpec
-from astralengine.old_code.game.specs.player_spec import PlayerSpec
+from astralengine._legacy.game.factories.camera_factory import spawn_follow_camera
+from astralengine._legacy.game.factories.player_factory import spawn_player
+from astralengine._legacy.game.specs.camera_spec import CameraSpec
+from astralengine._legacy.game.specs.player_spec import PlayerSpec
 
 
 def build_skybox_test_scene(world: ECSWorld) -> None:

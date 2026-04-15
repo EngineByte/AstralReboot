@@ -5,13 +5,13 @@ import numpy as np
 from pyglet import gl
 
 from astralengine.ecs.core.world import ECSWorld
-from astralengine.old_code.resources.render_settings import RenderSettings
-from astralengine.old_code.rendering.backend.gl_device import GLDevice
-from astralengine.old_code.rendering.backend.shader_library import ShaderLibrary
-from astralengine.old_code.rendering.backend.skybox_geometry import SkyboxGeometry
-from astralengine.old_code.rendering.backend.texture_library import TextureLibrary
-from astralengine.old_code.rendering.pipeline.render_context import RenderContext
-from astralengine.old_code.rendering.pipeline.render_queue import RenderQueue
+from astralengine._legacy.resources.render_settings import RenderSettings
+from astralengine._legacy.rendering.backend.gl_device import GLDevice
+from astralengine._legacy.rendering.backend.shader_library import ShaderLibrary
+from astralengine._legacy.rendering.backend.skybox_geometry import SkyboxGeometry
+from astralengine._legacy.rendering.backend.texture_library import TextureLibrary
+from astralengine._legacy.rendering.pipeline.render_context import RenderContext
+from astralengine._legacy.rendering.pipeline.render_queue import RenderQueue
 
 
 @dataclass(slots=True)

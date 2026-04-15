@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from astralengine.ecs.core.world import ECSWorld
-from astralengine.old_code.rendering.pipeline.render_context import RenderContext
-from astralengine.old_code.rendering.pipeline.render_queue import RenderQueue
+from astralengine._legacy.rendering.pipeline.render_context import RenderContext
+from astralengine._legacy.rendering.pipeline.render_queue import RenderQueue
 
 
 class RenderPass(Protocol):

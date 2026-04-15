@@ -5,8 +5,8 @@ from typing import Dict
 
 from pyglet import gl
 
-from astralengine.old_code.assets.asset_manager import AssetManager
-from astralengine.old_code.rendering.backend.shader_program import (
+from astralengine._legacy.assets.asset_manager import AssetManager
+from astralengine._legacy.rendering.backend.shader_program import (
     ShaderProgram,
     compile_shader,
     link_program,

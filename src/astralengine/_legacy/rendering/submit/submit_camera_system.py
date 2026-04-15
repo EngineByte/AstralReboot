@@ -1,15 +1,15 @@
 from __future__ import annotations
 
-from astralengine.old_code.components.camera import Camera
-from astralengine.old_code.components.transform import Transform
-from astralengine.old_code.components.camera_matrices import CameraMatrices
-from astralengine.old_code.components.tags import ActiveCamera
+from astralengine._legacy.components.camera import Camera
+from astralengine._legacy.components.transform import Transform
+from astralengine._legacy.components.camera_matrices import CameraMatrices
+from astralengine._legacy.components.tags import ActiveCamera
 from astralengine.ecs.query.query import Query
 from astralengine.ecs.core.world import ECSWorld
-from astralengine.old_code.rendering.renderer import Renderer
-from astralengine.old_code.resources.render_settings import RenderSettings
-from astralengine.old_code.stores.camera_matrices_store import CameraMatricesStore
-from astralengine.old_code.stores.transform_store import TransformStore
+from astralengine._legacy.rendering.renderer import Renderer
+from astralengine._legacy.resources.render_settings import RenderSettings
+from astralengine._legacy.stores.camera_matrices_store import CameraMatricesStore
+from astralengine._legacy.stores.transform_store import TransformStore
 
 
 def system_submit_camera(world: ECSWorld, dt: float) -> None:

@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from astralengine.ecs.core.world import ECSWorld
-from astralengine.old_code.rendering.pipeline.draw_commands import SkyboxDrawCommand
-from astralengine.old_code.rendering.renderer import Renderer
-from astralengine.old_code.resources.render_settings import RenderSettings
-from astralengine.old_code.resources.sky_settings import SkySettings
+from astralengine._legacy.rendering.pipeline.draw_commands import SkyboxDrawCommand
+from astralengine._legacy.rendering.renderer import Renderer
+from astralengine._legacy.resources.render_settings import RenderSettings
+from astralengine._legacy.resources.sky_settings import SkySettings
 
 
 def system_submit_skybox(world: ECSWorld, dt: float) -> None:

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from astralengine.ecs.core.world import ECSWorld
-from astralengine.old_code.rendering.renderer import Renderer
-from astralengine.old_code.resources.render_settings import RenderSettings
+from astralengine._legacy.rendering.renderer import Renderer
+from astralengine._legacy.resources.render_settings import RenderSettings
 
 
 def system_submit_debug(world: ECSWorld, dt: float) -> None:

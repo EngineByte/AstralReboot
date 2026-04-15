@@ -1,22 +1,22 @@
 from __future__ import annotations
 
-from astralengine.old_code.components.acceleration import Acceleration
-from astralengine.old_code.components.chunk import Chunk
-from astralengine.old_code.components.gravity import GravityWell
-from astralengine.old_code.components.mass import Mass
-from astralengine.old_code.components.mesh import Mesh
-from astralengine.old_code.components.model_matrix import ModelMatrix
-from astralengine.old_code.components.tags import DirtyMatrices, DirtyRemesh, DirtyRemodel
-from astralengine.old_code.components.transform import Transform
-from astralengine.old_code.components.velocity import Velocity
-from astralengine.old_code.components.chunk_lod import ChunkLOD
-from astralengine.old_code.components.chunk_residency import ChunkResidency
-from astralengine.old_code.components.frame_child import FrameChild
-from astralengine.old_code.streaming.chunk_stream_index import ChunkStreamIndex
+from astralengine._legacy.components.acceleration import Acceleration
+from astralengine._legacy.components.chunk import Chunk
+from astralengine._legacy.components.gravity import GravityWell
+from astralengine._legacy.components.mass import Mass
+from astralengine._legacy.components.mesh import Mesh
+from astralengine._legacy.components.model_matrix import ModelMatrix
+from astralengine._legacy.components.tags import DirtyMatrices, DirtyRemesh, DirtyRemodel
+from astralengine._legacy.components.transform import Transform
+from astralengine._legacy.components.velocity import Velocity
+from astralengine._legacy.components.chunk_lod import ChunkLOD
+from astralengine._legacy.components.chunk_residency import ChunkResidency
+from astralengine._legacy.components.frame_child import FrameChild
+from astralengine._legacy.streaming.chunk_stream_index import ChunkStreamIndex
 from astralengine.ecs.core.world import ECSWorld
-from astralengine.old_code.game.specs.chunk_spec import ChunkSpec
-from astralengine.old_code.voxels.chunk_map import ChunkMap
-from astralengine.old_code.voxels.voxel_pool import VoxelPool
+from astralengine._legacy.game.specs.chunk_spec import ChunkSpec
+from astralengine._legacy.voxels.chunk_map import ChunkMap
+from astralengine._legacy.voxels.voxel_pool import VoxelPool
 
 
 def spawn_chunk(world: ECSWorld, spec: ChunkSpec) -> int:

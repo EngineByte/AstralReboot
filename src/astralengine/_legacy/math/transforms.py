@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 import numpy.typing as npt
 
-from astralengine.old_code.math.camera import rotation_matrix_xyz
+from astralengine._legacy.math.camera import rotation_matrix_xyz
 
 
 Vec3 = npt.NDArray[np.float32]

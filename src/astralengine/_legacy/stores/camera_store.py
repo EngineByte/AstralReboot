@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 
-from astralengine.old_code.components.camera import Camera
-from astralengine.ecs.storage.soa_store import SoAStore
+from astralengine._legacy.components.camera import Camera
+from astralengine.ecs.storage.dense_store import DenseStore as SoAStore
 
 
 class CameraStore(SoAStore):

@@ -3,9 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from astralengine.ecs.core.world import ECSWorld
-from astralengine.old_code.resources.render_settings import RenderSettings
-from astralengine.old_code.rendering.pipeline.render_context import RenderContext
-from astralengine.old_code.rendering.pipeline.render_queue import RenderQueue
+from astralengine._legacy.resources.render_settings import RenderSettings
+from astralengine._legacy.rendering.pipeline.render_context import RenderContext
+from astralengine._legacy.rendering.pipeline.render_queue import RenderQueue
 
 
 @dataclass(slots=True)

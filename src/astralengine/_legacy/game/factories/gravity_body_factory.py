@@ -1,11 +1,11 @@
 from astralengine.ecs.core.world import ECSWorld
-from astralengine.old_code.components.transform import Transform
-from astralengine.old_code.components.velocity import Velocity
-from astralengine.old_code.components.acceleration import Acceleration
-from astralengine.old_code.components.gravity import GravityWell
-from astralengine.old_code.components.mass import Mass
-from astralengine.old_code.components.tags import DirtyRemodel
-from astralengine.old_code.game.specs.gravity_body_spec import GravityBodySpec
+from astralengine._legacy.components.transform import Transform
+from astralengine._legacy.components.velocity import Velocity
+from astralengine._legacy.components.acceleration import Acceleration
+from astralengine._legacy.components.gravity import GravityWell
+from astralengine._legacy.components.mass import Mass
+from astralengine._legacy.components.tags import DirtyRemodel
+from astralengine._legacy.game.specs.gravity_body_spec import GravityBodySpec
 
 
 def spawn_gravity_body(world: ECSWorld, spec: GravityBodySpec) -> int:

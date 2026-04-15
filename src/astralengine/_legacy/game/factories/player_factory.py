@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from astralengine.old_code.components.acceleration import Acceleration
-from astralengine.old_code.components.player_controller import PlayerController
-from astralengine.old_code.components.tags import DirtyMatrices, DirtyRemodel
-from astralengine.old_code.components.transform import Transform
-from astralengine.old_code.components.velocity import Velocity
+from astralengine._legacy.components.acceleration import Acceleration
+from astralengine._legacy.components.player_controller import PlayerController
+from astralengine._legacy.components.tags import DirtyMatrices, DirtyRemodel
+from astralengine._legacy.components.transform import Transform
+from astralengine._legacy.components.velocity import Velocity
 from astralengine.ecs.core.world import ECSWorld
-from astralengine.old_code.game.specs.player_spec import PlayerSpec
+from astralengine._legacy.game.specs.player_spec import PlayerSpec
 
 
 def spawn_player(world: ECSWorld, spec: PlayerSpec) -> int:

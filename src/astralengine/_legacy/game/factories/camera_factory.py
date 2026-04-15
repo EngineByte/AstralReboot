@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from astralengine.old_code.components.camera import Camera
-from astralengine.old_code.components.camera_matrices import CameraMatrices
-from astralengine.old_code.components.parent_follow import ParentFollow
-from astralengine.old_code.components.tags import ActiveCamera, DirtyMatrices
-from astralengine.old_code.components.transform import Transform
+from astralengine._legacy.components.camera import Camera
+from astralengine._legacy.components.camera_matrices import CameraMatrices
+from astralengine._legacy.components.parent_follow import ParentFollow
+from astralengine._legacy.components.tags import ActiveCamera, DirtyMatrices
+from astralengine._legacy.components.transform import Transform
 from astralengine.ecs.core.world import ECSWorld
-from astralengine.old_code.game.specs.camera_spec import CameraSpec
+from astralengine._legacy.game.specs.camera_spec import CameraSpec
 
 
 def spawn_follow_camera(world: ECSWorld, spec: CameraSpec) -> int:
