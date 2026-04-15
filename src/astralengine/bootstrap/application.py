@@ -1,12 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from time import perf_counter, sleep
-from typing import Iterable, Sequence
+from typing import Iterable
 
-from astralengine.ecs.core.world import ECSWorld
-from astralengine.ecs.scheduling.scheduler import SystemScheduler
-from astralengine.ecs.scheduling.phases import DEFAULT_PHASES
+from astralengine.app.startup import ApplicationContext
 
 
 @dataclass(slots=True, frozen=True)
@@ -32,23 +29,11 @@ class FramePhasePlan:
 @dataclass(slots=True)
 class ApplicationConfig:
     '''
-    Runtime control for the application loop.
-
-    Attributes:
-        startup_phases:
-            Phases to run once before entering the main loop.
-        frame_plan:
-            The ordered phases that run every frame.
-        fixed_dt:
-            Delta time passed into each frame.
-        max_frames:
-            Optional frame cap for tests, smoke runs, and deterministic execution.
-            None means run until interrupted.
-        target_fps:
-            Optional frame limiter. If None, runs as fast as possible.
+    Runtime execution configuration for a simulation session.
     '''
     startup_phases: tuple[str, ...] = ('startup',)
     frame_plan: FramePhasePlan = field(default_factory=FramePhasePlan)
+    shutdown_phases: tuple[str, ...] = ('shutdown',)
     fixed_dt: float = 1.0 / 60.0
     max_frames: int | None = None
     target_fps: float | None = 60.0
@@ -60,75 +45,30 @@ class ApplicationConfig:
         return 1.0 / self.target_fps
 
 
-def build_world() -> ECSWorld:
+@dataclass(slots=True)
+class ApplicationRuntime:
     '''
-    Compose and return the application ECS world.
+    Top-level application runtime container.
 
-    This is the place to:
-    - instantiate the world
-    - register resources
-    - register phases / scheduler config
-    - register systems
+    This owns process-level context and execution config.
+    It does not itself contain a simulation world.
     '''
-    world = ECSWorld()
-
-    scheduler = SystemScheduler(phases=DEFAULT_PHASES)
-
-    world.bind_scheduler(scheduler)
-
-    return world
+    context: ApplicationContext
+    config: ApplicationConfig
 
 
-def _run_phases(world: ECSWorld, phases: Sequence[str], dt: float) -> None:
-    '''
-    Run a sequence of named phases in order.
-    '''
-    for phase in phases:
-        world.run_phase(phase, dt)
-
-
-def run_application(
-    world: ECSWorld | None = None,
+def build_application_runtime(
+    *,
+    context: ApplicationContext,
     config: ApplicationConfig | None = None,
-) -> int:
+) -> ApplicationRuntime:
     '''
-    Run the application.
+    Build the top-level application runtime object.
 
-    Returns:
-        Exit code integer.
+    No ECS world is created here yet.
+    World/session creation happens later when the flow enters simulation.
     '''
-    cfg = config or ApplicationConfig()
-    ecs_world = world or build_world()
-
-    if ecs_world._scheduler is None:
-        raise RuntimeError("Application world has no scheduler. Did you forget build_world()?") 
-    
-    ecs_world.run_frame(cfg.fixed_dt)
-
-    frame_index = 0
-
-    try:
-        while cfg.max_frames is None or frame_index < cfg.max_frames:
-            frame_start = perf_counter()
-
-            _run_phases(
-                ecs_world,
-                cfg.frame_plan.phases,
-                cfg.fixed_dt,
-            )
-
-            frame_index += 1
-
-            frame_duration = cfg.frame_duration
-            if frame_duration is not None:
-                elapsed = perf_counter() - frame_start
-                remaining = frame_duration - elapsed
-                if remaining > 0.0:
-                    sleep(remaining)
-
-    except KeyboardInterrupt:
-        print("\nShutting down application...")
-        return 0
-
-    print("\nMax frames reached. Ending application...")
-    return 0
+    return ApplicationRuntime(
+        context=context,
+        config=config or ApplicationConfig(),
+    )

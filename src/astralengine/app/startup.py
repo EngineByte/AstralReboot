@@ -1,9 +1,49 @@
 from __future__ import annotations
 
-from astralengine.app.logging_setup import configure_logging
+import logging
+from dataclasses import dataclass
+
+from astralengine.app.logging_setup import configure_logging, get_logger
 from astralengine.app.paths import configure_paths
 
 
-def initialize_application() -> None:
+@dataclass(slots=True)
+class ApplicationContext:
+    '''
+    Process-level application context.
+
+    This is not ECS state.
+    It represents global application services/settings created before
+    any ECS world or simulation session exists.
+    '''
+    logger: logging.Logger
+    debug: bool = False
+    headless: bool = False
+
+
+def initialize_application(
+    *,
+    debug: bool = False,
+    headless: bool = False,
+) -> ApplicationContext:
+    '''
+    Perform process-level startup prior to any ECS world construction.
+    '''
     configure_paths()
-    configure_logging()
+
+    logger = configure_logging(
+        level=logging.DEBUG if debug else logging.INFO,
+        debug=debug
+    )
+
+    app_logger = get_logger('app.startup')
+    app_logger.info('Application initialization started.')
+    app_logger.debug('Debug mode: %s', debug)
+    app_logger.debug('Headless mode: %s', headless)
+    app_logger.info('Application initialization completed.')
+
+    return ApplicationContext(
+        logger=logger,
+        debug=debug,
+        headless=headless,
+    )

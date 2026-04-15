@@ -35,4 +35,5 @@ markers = [
     "world",
     "resource",
     "application",
+    "simulation"
 ]

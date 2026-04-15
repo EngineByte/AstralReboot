@@ -3,39 +3,79 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(slots=True, frozen=True)
 class PhaseSpec:
     '''
-    Immutable description of a system scheduler execution phase.
-    
-    Fields:
-        - 'name': unique phase identifier string
+    Describes one scheduler phase.
 
-        - 'commit_after': when True, the system scheduler will call
-        world.apply_commands() after all systems in this phase have finished.
-        This is a key structural mutation safety barrier.
+    Attributes:
+        name:
+            Unique phase name.
+        commit_after:
+            If True, deferred world commands are applied after the phase.
+        is_frame_phase:
+            If True, this phase participates in normal per-frame execution.
+            Lifecycle phases like startup/shutdown should set this to False.
     '''
-
     name: str
     commit_after: bool = True
+    is_frame_phase: bool = True
 
-    def __post_init__(self) -> None:
-        if not self.name:
-            raise ValueError('PhaseSpec.name must be a non-empty string.')
-        
-        if ' ' in self.name:
-            raise ValueError('PhaseSpec.name must not contain spaces.')
-        
 
-DEFAULT_PHASES: tuple[PhaseSpec, ...] = (
-    PhaseSpec(name='startup', commit_after=True),
-    PhaseSpec(name='input', commit_after=False),
-    PhaseSpec(name='pre_sim', commit_after=False),
-    PhaseSpec(name='sim', commit_after=True),
-    PhaseSpec(name='post_sim', commit_after=True),
-    PhaseSpec(name='pre_render', commit_after=False),
-    PhaseSpec(name='render_extract', commit_after=True),
-    PhaseSpec(name='cleanup', commit_after=True),
+STARTUP_PHASE = PhaseSpec(
+    name='startup',
+    commit_after=True,
+    is_frame_phase=False,
 )
 
-PHASE_INDEX = {p.name: i for i, p in enumerate(DEFAULT_PHASES)}
+FRAME_PHASES: tuple[PhaseSpec, ...] = (
+    PhaseSpec(
+        name='input',
+        commit_after=True,
+        is_frame_phase=True,
+    ),
+    PhaseSpec(
+        name='pre_sim',
+        commit_after=True,
+        is_frame_phase=True,
+    ),
+    PhaseSpec(
+        name='sim',
+        commit_after=True,
+        is_frame_phase=True,
+    ),
+    PhaseSpec(
+        name='post_sim',
+        commit_after=True,
+        is_frame_phase=True,
+    ),
+    PhaseSpec(
+        name='pre_render',
+        commit_after=True,
+        is_frame_phase=True,
+    ),
+    PhaseSpec(
+        name='render_extract',
+        commit_after=True,
+        is_frame_phase=True,
+    ),
+    PhaseSpec(
+        name='cleanup',
+        commit_after=True,
+        is_frame_phase=True,
+    ),
+)
+
+SHUTDOWN_PHASE = PhaseSpec(
+    name='shutdown',
+    commit_after=True,
+    is_frame_phase=False,
+)
+
+ALL_PHASES: tuple[PhaseSpec, ...] = (
+    STARTUP_PHASE,
+    *FRAME_PHASES,
+    SHUTDOWN_PHASE,
+)
+
+DEFAULT_PHASES: tuple[PhaseSpec, ...] = ALL_PHASES
