@@ -64,6 +64,13 @@ def run_app(runtime: ApplicationRuntime) -> int:
         app.change_state(BootState())
 
         while not app.shutdown_requested:
+            window = runtime.context.window
+            if window is not None:
+                window.poll_events()
+                if window.should_close():
+                    app.shutdown_requested = True
+                    break
+
             app.state_machine.update(app, runtime.config.fixed_dt)
             app.state_machine.render(app)
 
@@ -78,5 +85,13 @@ def run_app(runtime: ApplicationRuntime) -> int:
 
     finally:
         app.shutdown_simulation()
+
+        renderer = runtime.context.renderer
+        if renderer is not None:
+            renderer.shutdown()
+        
+        window = runtime.context.window
+        if window is not None:
+            window.close()
 
     return 0

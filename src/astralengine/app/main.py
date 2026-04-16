@@ -9,6 +9,7 @@ from astralengine.bootstrap.application import (
     build_application_runtime,
 )
 from astralengine.runtime.app_runner import run_app
+from astralengine.bootstrap.graphics import bootstrap_graphics
 
 
 logger = logging.getLogger(__name__)
@@ -28,12 +29,14 @@ def main() -> int:
             headless=args.headless,
         )
 
+        bootstrap_graphics(context)
+
         runtime = build_application_runtime(
             context=context,
             config=ApplicationConfig(
                 fixed_dt=1.0 / 60.0,
                 max_frames=args.frames,
-                target_fps=None if args.headless else 60.0,
+                target_fps=60.0 if args.headless else None,
             ),
         )
 

@@ -19,7 +19,15 @@ class SimulationState:
             app.shutdown_requested = True
 
     def render(self, app) -> None:
-        pass
+        context = app.runtime.context
+        
+        renderer = context.renderer
+        if renderer is None:
+            return
+        
+        renderer.begin_frame()
+        renderer.render_demo_triangle()
+        renderer.end_frame()
 
     def on_exit(self, app) -> None:
         get_logger('flow.simulation').info('Exited SimulationState.')

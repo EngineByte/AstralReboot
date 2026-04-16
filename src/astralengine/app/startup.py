@@ -11,14 +11,12 @@ from astralengine.app.paths import configure_paths
 class ApplicationContext:
     '''
     Process-level application context.
-
-    This is not ECS state.
-    It represents global application services/settings created before
-    any ECS world or simulation session exists.
     '''
     logger: logging.Logger
     debug: bool = False
     headless: bool = False
+    window: object | None = None
+    renderer: object | None = None
 
 
 def initialize_application(
@@ -33,7 +31,8 @@ def initialize_application(
 
     logger = configure_logging(
         level=logging.DEBUG if debug else logging.INFO,
-        debug=debug
+        debug=debug,
+        console=True if debug else False
     )
 
     app_logger = get_logger('app.startup')
