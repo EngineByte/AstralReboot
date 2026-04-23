@@ -76,7 +76,7 @@ class ShaderProgram:
 
     __slots__ = ('_program',)
 
-    def __init__(self, vertex_source: str, fragment_source: str) -> None:
+    def __init__(self, vertex_source: bytes, fragment_source: bytes) -> None:
         vertex_shader = compile_shader(vertex_source, gl.GL_VERTEX_SHADER)
         fragment_shader = compile_shader(fragment_source, gl.GL_FRAGMENT_SHADER)
 

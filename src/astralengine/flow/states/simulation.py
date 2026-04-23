@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from astralengine.app.logging_setup import get_logger
+from astralengine.resources.camera_state import CameraState
+from astralengine.resources.render_queue import RenderQueue
 
 
 class SimulationState:
@@ -20,13 +22,19 @@ class SimulationState:
 
     def render(self, app) -> None:
         context = app.runtime.context
-        
+        session = app.simulation_session
+        world = session.world
+
         renderer = context.renderer
+
         if renderer is None:
             return
         
+        render_queue = world.get_required_resource(RenderQueue)
+        camera_state = world.get_required_resource(CameraState)
+        
         renderer.begin_frame()
-        renderer.render_demo_triangle()
+        renderer.render_scene(render_queue, camera_state)
         renderer.end_frame()
 
     def on_exit(self, app) -> None:
