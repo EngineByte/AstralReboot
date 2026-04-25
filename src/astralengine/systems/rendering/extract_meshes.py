@@ -15,12 +15,6 @@ def _identity_mat4() -> np.ndarray:
     return np.eye(4, dtype=np.float32)
 
 
-def _translation_mat4(position: np.ndarray) -> np.ndarray:
-    mat = _identity_mat4()
-    mat[:3, 3] = position
-    return mat
-
-
 def _build_model_matrix(transform: Transform) -> np.ndarray:
     '''
     Minimal first-pass model matrix builder.
@@ -36,7 +30,35 @@ def _build_model_matrix(transform: Transform) -> np.ndarray:
     if model_matrix is not None:
         return model_matrix
 
-    return _translation_mat4(transform.position)
+    matpos = _identity_mat4()
+    matpos[:3, 3] = transform.position
+
+    matrotyaw = _identity_mat4()
+    matrotpitch = _identity_mat4()
+    matrotroll = _identity_mat4()
+
+    y, p, r = transform.rotation
+
+    yaw = np.radians(y)
+    pitch = np.radians(p)
+    roll = np.radians(r)
+
+    cy, sy = np.cos(yaw), np.sin(yaw)
+    cp, sp = np.cos(pitch), np.sin(pitch)
+    cr, sr = np.cos(roll), np.sin(roll)
+
+    matrotyaw[0, 0], matrotyaw[2, 2] = cy, cy
+    matrotyaw[0, 2], matrotyaw[2, 0] = -sy, sy
+    
+    matrotpitch[1, 1], matrotpitch[2, 2] = cp, cp
+    matrotpitch[1, 2], matrotpitch[2, 1] = sp, -sp
+
+    matrotroll[0, 0], matrotroll[1, 1] = cr, cr
+    matrotroll[0, 1], matrotroll[1, 0] = -sr, sr
+
+    model_matrix = matpos @ matrotyaw @ matrotpitch @ matrotyaw
+
+    return model_matrix
 
 
 def system_extract_meshes(world: ECSWorld, dt: float) -> None:

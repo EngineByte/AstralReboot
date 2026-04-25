@@ -11,6 +11,8 @@ from astralengine.ecs.core.world import ECSWorld
 def _vec3(x: float, y: float, z: float) -> np.ndarray:
     return np.array([x, y, z], dtype=np.float32)
 
+def _vec4(x: float, y: float, z: float, w: float) -> np.ndarray:
+    return np.array((x, y, z, w), dtype=np.float32)
 
 def create_demo_scene(world: ECSWorld) -> None:
     '''
@@ -34,7 +36,7 @@ def create_demo_scene(world: ECSWorld) -> None:
         player,
         Transform(
             position=_vec3(0.0, 0.0, -10.0),
-            rotation=_vec3(0.0, 0.0, 0.0),
+            orientation=_vec4(1.0, 0.0, 0.0, 0.0),
         ),
     )
 
@@ -47,7 +49,7 @@ def create_demo_scene(world: ECSWorld) -> None:
         camera,
         Transform(
             position=_vec3(0.0, 1.5, -10.0),
-            rotation=_vec3(0.0, 0.0, 0.0),
+            orientation=_vec4(1.0, 0.0, 0.0, 0.0),
         ),
     )
 
@@ -70,7 +72,7 @@ def create_demo_scene(world: ECSWorld) -> None:
         cube,
         Transform(
             position=_vec3(0.0, 0.0, 0.0),
-            rotation=_vec3(0.0, 0.0, 0.0),
+            orientation=_vec4(1.0, 0.0, 0.0, 0.0),
         ),
     )
 
@@ -93,7 +95,7 @@ def create_demo_scene(world: ECSWorld) -> None:
         cube2,
         Transform(
             position=_vec3(2.0, 0.0, 0.0),
-            rotation=_vec3(0.0, 0.0, 0.0),
+            orientation=_vec4(1.0, 0.0, 0.0, 0.0),
         ),
     )
 

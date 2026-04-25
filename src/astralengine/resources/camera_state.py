@@ -7,6 +7,7 @@ import numpy.typing as npt
 
 
 Vec3 = npt.NDArray[np.float32]
+Vec4 = npt.NDArray[np.float32]
 
 
 @dataclass(slots=True)
@@ -20,8 +21,8 @@ class CameraState:
     position: Vec3 = field(
         default_factory=lambda: np.zeros(3, dtype=np.float32)
     )
-    rotation: Vec3 = field(
-        default_factory=lambda: np.zeros(3, dtype=np.float32)
+    orientation: Vec4 = field(
+        default_factory=lambda: np.array([1.0, 0.0, 0.0, 0.0], dtype=np.float32)
     )
 
     fov_y_degrees: float = 75.0

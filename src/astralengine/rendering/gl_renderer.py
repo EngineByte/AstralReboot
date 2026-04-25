@@ -10,6 +10,7 @@ from astralengine.rendering.mesh_pool import MeshPool
 from astralengine.resources.camera_state import CameraState
 from astralengine.resources.render_queue import RenderQueue
 from astralengine.rendering.shader import ShaderProgram
+from astralengine.math.math_quat import quat_to_mat4, quat_conjugate
 
 
 VERT_SRC = b'''
@@ -57,7 +58,7 @@ def _perspective_matrix(
 
 def _view_matrix_from_camera(
     position: np.ndarray,
-    rotation: np.ndarray
+    orientation: np.ndarray
 ) -> np.ndarray:
     '''
     Temporary translation-only camera.
@@ -67,17 +68,14 @@ def _view_matrix_from_camera(
     matpos = np.identity(4, dtype=np.float32)
     matpos[:3, 3] = -position
 
-    matyaw = np.identity(4, dtype=np.float32)
-    yaw, pitch, roll = rotation
+    matrot = quat_to_mat4(quat_conjugate(orientation))
 
-    yaw_rad = np.radians(yaw + 180.0)
-
-    cy = np.cos(yaw_rad)
-    
-    matyaw[0, 0] = cy
-    matyaw[2, 2] = cy
-
-    mat = matyaw @ matpos
+    mat = np.array([
+        [-1.0, 0.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0, 0.0],
+        [0.0, 0.0, -1.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    ], dtype=np.float32) @ matrot @ matpos
 
     return mat
 
@@ -156,7 +154,7 @@ class GLRenderer(RenderBackend):
             near_clip=camera_state.near_clip,
             far_clip=camera_state.far_clip,
         )
-        view = _view_matrix_from_camera(camera_state.position, camera_state.rotation)
+        view = _view_matrix_from_camera(camera_state.position, camera_state.orientation)
 
         self._program.use()
 

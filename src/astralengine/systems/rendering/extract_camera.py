@@ -44,7 +44,7 @@ def system_extract_camera(world: ECSWorld, dt: float) -> None:
     camera_state.is_valid = True
 
     camera_state.position = transform.position.copy()
-    camera_state.rotation = transform.rotation.copy()
+    camera_state.orientation = transform.orientation.copy()
 
     camera_state.fov_y_degrees = camera.fov_y_degrees
     camera_state.near_clip = camera.near_clip

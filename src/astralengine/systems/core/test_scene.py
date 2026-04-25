@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from astralengine.app.logging_setup import get_logger
 from astralengine.components.lifecycle import Lifetime
-from astralengine.components.motion import Velocity
+from astralengine.components.velocity import Velocity
 from astralengine.components.transform import Transform
 from astralengine.ecs.scheduling.system_spec import SystemSpec
 from astralengine.resources.scenes import SceneBootstrapState, TestSceneConfig
